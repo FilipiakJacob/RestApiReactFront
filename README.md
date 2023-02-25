@@ -1,1 +1,1 @@
-ws
+This is a Node.js + React implementation of the RESTful fullstack Book and literature database (choice nr 14 in Assignment Brief).
