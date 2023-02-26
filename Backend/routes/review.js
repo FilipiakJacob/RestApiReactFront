@@ -12,23 +12,18 @@ const Router = require("koa-router")
 const bodyParser = require("koa-bodyparser");
 
 /**Import review model for database access */
-const model = require("./models/review")
+const model = require("../models/review")
 
 /** Set a path for the review endpoint */
 const router = Router({prefix: '/api/v1/review'});
 
 /** Define which functions and middleware will be triggered by each request to the endpoint */
 router.get('/', getAll);
-router.post('/',bodyParser(),addreview);
+router.post('/',bodyParser(),addReview);
 router.get('/:id([0-9]{1,})', getById);
-router.put('/:id([0-9]{1,})',bodyParser(),updatereview); 
-router.del('/:id([0-9]{1,})', deletereview);
+router.put('/:id([0-9]{1,})',bodyParser(),updateReview); 
+router.del('/:id([0-9]{1,})', deleteReview);
 
-router.get('/', getAll);
-router.post('/',bodyParser(),addreview);
-router.get('/:id([0-9]{1,})', getById);
-router.put('/:id([0-9]{1,})',bodyParser(),updatereview); 
-router.del('/:id([0-9]{1,})', deletereview);
 
 /**
  * Endpoint responsible for getting a single user resource by user ID.
@@ -37,11 +32,14 @@ router.del('/:id([0-9]{1,})', deletereview);
  */
 async function getById(ctx, next)
 {
+    const permission= {
+        granted : true
+    }
     // Get the ID from the route parameters.
     let id = ctx.params.id;
     // If it exists then return the review as JSON.
     let review = await model.getById(id);
-    const permission = can.read(review[0]);
+    //const permission = can.read(review[0]);
     if (!permission.granted) {
         ctx.status = 403;
     }
@@ -50,7 +48,6 @@ async function getById(ctx, next)
         if (review.length)
         {
             ctx.body = review[0];
-            await reviewViews.add(id);
         }
     }
 }
@@ -62,12 +59,12 @@ async function getAll(ctx, next)
     const order = ctx.query.order;
     let reviews = await model.getAll(page, limit, order);
     // Use the response body to send the reviews as JSON. 
-    if (review.length) {
+    if (reviews.length) {
         ctx.body = reviews;
     }
 }
 
-async function addreview(ctx, next)
+async function addReview(ctx, next)
 {
     // The body parser gives us access to the request body on cnx.request.body. 
     // Use this to extract the title and fullText we were sent.
@@ -80,7 +77,7 @@ async function addreview(ctx, next)
     }
 }
 
-async function updatereview(ctx, next)
+async function updateReview(ctx, next)
 {
     let id = ctx.params.id;
     let body = ctx.request.body;
@@ -99,7 +96,7 @@ async function updatereview(ctx, next)
     }
 }
 
-async function deletereview(ctx, next)
+async function deleteReview(ctx, next)
 {
     const permission = can.delete(ctx.state.user);
     if (!permission.granted) {
