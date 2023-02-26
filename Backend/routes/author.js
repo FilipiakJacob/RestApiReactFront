@@ -1,5 +1,4 @@
 /**
-
 * A module to handle the author endpoint of the API. 
 * @module routes/author
 * @author JF 
@@ -14,7 +13,7 @@ const Router = require("koa-router")
 const bodyParser = require("koa-bodyparser");
 
 /**Import author model for database access */
-const model = require("./models/author")
+const model = require("../models/author")
 
 /** Set a path for the author endpoint */
 const router = Router({prefix: '/api/v1/author'});
@@ -26,6 +25,8 @@ router.get('/:id([0-9]{1,})', getById);
 router.put('/:id([0-9]{1,})',bodyParser(),updateAuthor); 
 router.del('/:id([0-9]{1,})', deleteAuthor);
 
+
+
 /**
  * Endpoint responsible for getting a single user resource by user ID.
  * @param ctx Identifier to the context of the HTTP request.
@@ -33,11 +34,15 @@ router.del('/:id([0-9]{1,})', deleteAuthor);
  */
 async function getById(ctx, next)
 {
+    const permission= {
+        granted : true
+    }
     // Get the ID from the route parameters.
+    console.log(permission.granted)
     let id = ctx.params.id;
     // If it exists then return the author as JSON.
     let author = await model.getById(id);
-    const permission = can.read(author[0]);
+    //const permission = can.read(author[0]);
     if (!permission.granted) {
         ctx.status = 403;
     }
@@ -46,7 +51,6 @@ async function getById(ctx, next)
         if (author.length)
         {
             ctx.body = author[0];
-            await authorViews.add(id);
         }
     }
 }
@@ -58,7 +62,7 @@ async function getAll(ctx, next)
     const order = ctx.query.order;
     let authors = await model.getAll(page, limit, order);
     // Use the response body to send the authors as JSON. 
-    if (author.length) {
+    if (authors.length) {
         ctx.body = authors;
     }
 }

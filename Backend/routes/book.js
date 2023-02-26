@@ -12,23 +12,18 @@ const Router = require("koa-router")
 const bodyParser = require("koa-bodyparser");
 
 /**Import book model for database access */
-const model = require("./models/book")
+const model = require("../models/book")
 
 /** Set a path for the book endpoint */
 const router = Router({prefix: '/api/v1/book'});
 
 /** Define which functions and middleware will be triggered by each request to the endpoint */
 router.get('/', getAll);
-router.post('/',bodyParser(),addbook);
+router.post('/',bodyParser(),addBook);
 router.get('/:id([0-9]{1,})', getById);
-router.put('/:id([0-9]{1,})',bodyParser(),updatebook); 
-router.del('/:id([0-9]{1,})', deletebook);
+router.put('/:id([0-9]{1,})',bodyParser(),updateBook); 
+router.del('/:id([0-9]{1,})', deleteBook);
 
-router.get('/', getAll);
-router.post('/',bodyParser(),addbook);
-router.get('/:id([0-9]{1,})', getById);
-router.put('/:id([0-9]{1,})',bodyParser(),updatebook); 
-router.del('/:id([0-9]{1,})', deletebook);
 
 /**
  * Endpoint responsible for getting a single user resource by user ID.
@@ -37,11 +32,14 @@ router.del('/:id([0-9]{1,})', deletebook);
  */
 async function getById(ctx, next)
 {
+    const permission= {
+        granted : true
+    }
     // Get the ID from the route parameters.
     let id = ctx.params.id;
     // If it exists then return the book as JSON.
     let book = await model.getById(id);
-    const permission = can.read(book[0]);
+    //const permission = can.read(book[0]);
     if (!permission.granted) {
         ctx.status = 403;
     }
@@ -50,7 +48,6 @@ async function getById(ctx, next)
         if (book.length)
         {
             ctx.body = book[0];
-            await bookViews.add(id);
         }
     }
 }
@@ -62,12 +59,12 @@ async function getAll(ctx, next)
     const order = ctx.query.order;
     let books = await model.getAll(page, limit, order);
     // Use the response body to send the books as JSON. 
-    if (book.length) {
+    if (books.length) {
         ctx.body = books;
     }
 }
 
-async function addbook(ctx, next)
+async function addBook(ctx, next)
 {
     // The body parser gives us access to the request body on cnx.request.body. 
     // Use this to extract the title and fullText we were sent.
@@ -80,7 +77,7 @@ async function addbook(ctx, next)
     }
 }
 
-async function updatebook(ctx, next)
+async function updateBook(ctx, next)
 {
     let id = ctx.params.id;
     let body = ctx.request.body;
@@ -99,7 +96,7 @@ async function updatebook(ctx, next)
     }
 }
 
-async function deletebook(ctx, next)
+async function deleteBook(ctx, next)
 {
     const permission = can.delete(ctx.state.user);
     if (!permission.granted) {
