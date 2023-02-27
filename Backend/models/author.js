@@ -1,3 +1,11 @@
+/**
+ * This module encapsulates all interactions between the "author" API endpoint 
+ * and the MySQL database.
+ * 
+ * @module modules/author
+ * @author JF
+ */
+
 const db = require('../helpers/database'); 
 
 /**

@@ -1,3 +1,12 @@
+/**
+ * This module encapsulates all interactions between the "review" API endpoint 
+ * and the MySQL database.
+ * 
+ * @module modules/review
+ * @author JF
+ */
+
+
 const db = require('../helpers/database'); 
 
 /**

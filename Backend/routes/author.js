@@ -18,12 +18,15 @@ const model = require("../models/author")
 /** Set a path for the author endpoint */
 const router = Router({prefix: '/api/v1/author'});
 
+/**Import JWT authentication strategy handler */
+const jwtAuth = require('../controllers/jwt');
+
 /** Define which functions and middleware will be triggered by each request to the endpoint */
-router.get('/', getAll);
-router.post('/',bodyParser(),addAuthor);
-router.get('/:id([0-9]{1,})', getById);
-router.put('/:id([0-9]{1,})',bodyParser(),updateAuthor); 
-router.del('/:id([0-9]{1,})', deleteAuthor);
+router.get('/',jwtAuth, getAll);
+router.post('/',jwtAuth, bodyParser(),  addAuthor);
+router.get('/:id([0-9]{1,})',jwtAuth, getById);
+router.put('/:id([0-9]{1,})',jwtAuth, bodyParser(),updateAuthor); 
+router.del('/:id([0-9]{1,})',jwtAuth, deleteAuthor);
 
 
 
