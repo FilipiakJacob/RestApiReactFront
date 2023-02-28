@@ -1,3 +1,12 @@
+/**
+ * This module encapsulates all interactions between the "user" API endpoint 
+ * and the MySQL database.
+ * 
+ * @module modules/user
+ * @author JF
+ */
+
+
 const db = require('../helpers/database');
 
 const bcrypt = require('bcrypt');
@@ -89,9 +98,14 @@ exports.delete = async function deleteUser(id)
 
 }
 
-
-//get a single user by the (unique) username
-
+/**
+ * Function queries the database in search of a user with a given username.
+ * This function should NOT be made and endpoint. 
+ * 
+ * @param {string} username The username of by which the database is filtered.
+ * @returns {object} MySQL results object containing data about the user.
+ * @throws {DatabaseException} Custom exception for DB query failures
+ */
 exports.findByUsername = async function getByUsername(username) 
 {
     const query = "SELECT * FROM users WHERE username = ?;";

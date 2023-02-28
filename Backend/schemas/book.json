@@ -1,0 +1,139 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "book": {
+      "id": "/book",
+      "title": "book",
+      "description": "Full schema of the Book resource",
+      "type": "object",
+      "properties": {
+        "id": {
+          "description": "The id number of the book",
+          "type": "number"
+        },
+        "name": {
+          "description": "Name of the book",
+          "type": "string"
+        },
+        "authorId": {
+          "description": "ID of the book's author",
+          "type": "number"
+        },
+        "date": {
+          "description": "Date of the book being published",
+          "type": "string",
+          "format": "date"
+        },
+        "isbn": {
+          "description": "ISBN-13 number of the book",
+          "type": "string",
+          "minLength":14,
+          "maxLength": 14
+        },
+        "description": {
+          "description": "Description of the book",
+          "type": "string",
+          "maxLength": 1024
+        },
+        "cover": {
+          "description": "Cover image of the book",
+          "type": "string"
+        },
+        "contents": {
+          "description": "The book PDF file",
+          "type": "string"
+        }
+      },
+      "required": ["id","name","authorId","date","isbn","description"],
+      "additionalProperties": false      
+    },
+    "bookAdd": {
+      "id": "/bookAdd",
+      "title": "bookAdd",
+      "description": "Schema for adding new book to database.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "Name of the book",
+          "type": "string"
+        },
+        "authorId": {
+          "description": "ID of the book's author",
+          "type": "number"
+        },
+        "date": {
+          "description": "Date of the book being published",
+          "type": "string",
+          "format": "date"
+        },
+        "isbn": {
+          "description": "ISBN-13 number of the book",
+          "type": "string",
+          "minLength":14,
+          "maxLength": 14
+        },
+        "description": {
+          "description": "Description of the book",
+          "type": "string",
+          "maxLength": 1024
+        },
+        "cover": {
+          "description": "Cover image of the book",
+          "type": "string"
+        },
+        "contents": {
+          "description": "The book PDF file",
+          "type": "string"
+        }
+      },
+      "required": ["name","authorId","date","isbn","description"],
+      "additionalProperties": false      
+    },
+    "bookUpd": {
+      "id": "/bookUpd",
+      "title": "bookUpd",
+      "description": "Schema for modifying a book in the database.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "description": "The id number of the book",
+          "type": "number"
+        },
+        "name": {
+          "description": "Name of the book",
+          "type": "string"
+        },
+        "authorId": {
+          "description": "ID of the book's author",
+          "type": "number"
+        },
+        "date": {
+          "description": "Date of the book being published",
+          "type": "string",
+          "format": "date"
+        },
+        "isbn": {
+          "description": "ISBN-13 number of the book",
+          "type": "string",
+          "minLength":14,
+          "maxLength": 14
+        },
+        "description": {
+          "description": "Description of the book",
+          "type": "string",
+          "maxLength": 1024
+        },
+        "cover": {
+          "description": "Cover image of the book",
+          "type": "string"
+        },
+        "contents": {
+          "description": "The book PDF file",
+          "type": "string"
+        }
+      },
+      "required": ["name","authorId","date","isbn","description"],
+      "additionalProperties": false      
+    }
+  }
+}

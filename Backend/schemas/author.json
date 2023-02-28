@@ -1,0 +1,59 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "author": {
+      "id": "/author",
+      "title": "author",
+      "description": "Full schema of the Author resource",
+      "type": "object",
+      "properties": {
+        "id": {
+          "description": "The id number of the author",
+          "type": "number"
+        },
+        "name": {
+          "description": "Body text of the blog author",
+          "type": "string"
+        }
+      },
+      "required": ["id","name"],
+      "additionalProperties": false      
+    },
+    "authorAdd": {
+      "id": "/authorAdd",
+      "title": "authorAdd",
+      "description": "Schema for adding an author to the database.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "description": "The id number of the author",
+          "type": "number"
+        },
+        "name": {
+          "description": "The name of the author",
+          "type": "string"
+        }
+      },
+      "required": ["name"],
+      "additionalProperties": false      
+    },
+    "authorUpd": {
+      "id": "/authorUpd",
+      "title": "authorUpd",
+      "description": "Schema for modifying an author in the database.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "description": "The id number of the author",
+          "type": "number"
+        },
+        "name": {
+          "description": "The name of the author",
+          "type": "string"
+        }
+      },
+      "required": ["id","name"],
+      "additionalProperties": false      
+    }
+  }
+}

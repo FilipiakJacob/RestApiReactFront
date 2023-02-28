@@ -17,12 +17,19 @@ const model = require("../models/review")
 /** Set a path for the review endpoint */
 const router = Router({prefix: '/api/v1/review'});
 
+/**Import JWT authentication strategy handler */
+const jwtAuth = require('../controllers/jwt');
+
+/**Import validator */
+const validate = require("../controllers/validation").validateReview
+
 /** Define which functions and middleware will be triggered by each request to the endpoint */
-router.get('/', getAll);
-router.post('/',bodyParser(),addReview);
-router.get('/:id([0-9]{1,})', getById);
-router.put('/:id([0-9]{1,})',bodyParser(),updateReview); 
-router.del('/:id([0-9]{1,})', deleteReview);
+router.get('/',jwtAuth,  getAll);
+//TODO: Get review author ID from JWT instead of requiring it in schema.
+router.post('/', bodyParser(), validate, jwtAuth,addReview);
+router.get('/:id([0-9]{1,})',jwtAuth, getById);
+router.put('/:id([0-9]{1,})',jwtAuth, bodyParser(), validate, updateReview); 
+router.del('/:id([0-9]{1,})',jwtAuth, deleteReview);
 
 
 /**

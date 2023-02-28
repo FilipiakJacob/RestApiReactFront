@@ -14,14 +14,20 @@ const bodyParser = require("koa-bodyparser");
 /**Import user model for database access */
 const model = require("../models/user")
 
+/**Import JWT authentication strategy handler */
+const jwtAuth = require('../controllers/jwt');
+
 /** Set a path for the user endpoint */
 const router = Router({prefix: '/api/v1/user'});
 
-router.get('/', getAll);
-router.post('/', bodyParser(),createUser);
-router.get('/:id([0-9]{1,})', getById);
-router.put('/:id([0-9]{1,})', bodyParser(), updateUser); 
-router.del('/:id([0-9]{1,})', deleteUser);
+/**Import validator */
+const validate = require("../controllers/validation").validateUser
+
+router.get('/',jwtAuth, getAll);
+router.post('/', bodyParser(), validate, createUser);
+router.get('/:id([0-9]{1,})',jwtAuth, getById);
+router.put('/:id([0-9]{1,})',jwtAuth, bodyParser(), validate, updateUser); 
+router.del('/:id([0-9]{1,})',jwtAuth, deleteUser);
 
 async function getAll(ctx, next)
 {
