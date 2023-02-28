@@ -1,0 +1,94 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "user": {
+      "id": "/user",
+      "title": "user",
+      "description": "Full schema of the user resource.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "description": "The id number of the user.",
+          "type": "number"
+        },
+        "username": {
+          "description": "Username of the user.",
+          "type": "string"
+        },
+        "email": {
+          "description": "Email address of the user.",
+          "type": "string",
+          "format": "email",
+          "minLength":8,
+          "maxLength": 128
+        },
+        "password": {
+          "description": "Password of the user.",
+          "type": "string",
+          "minLength":8,
+          "maxLength": 25
+        }
+      },
+      "required": ["id","username","email","password"],
+      "additionalProperties": false      
+    },
+    "userAdd": {
+      "id": "/userAdd",
+      "title": "userAdd",
+      "description": "Schema for adding a new user to the database.",
+      "type": "object",
+      "properties": {
+        "username": {
+          "description": "Username of the user.",
+          "type": "string"
+        },
+        "email": {
+          "description": "Email address of the user.",
+          "type": "string",
+          "format": "email",
+          "minLength":8,
+          "maxLength": 128
+        },
+        "password": {
+          "description": "Password of the user.",
+          "type": "string",
+          "minLength":8,
+          "maxLength": 25
+        }
+      },
+      "required": ["username","email","password"],
+      "additionalProperties": false      
+    },
+    "userUpd": {
+      "id": "/userUpd",
+      "title": "userUpd",
+      "description": "Schema for updating a user in the database.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "description": "The id number of the user.",
+          "type": "number"
+        },
+        "username": {
+          "description": "Username of the user.",
+          "type": "string"
+        },
+        "email": {
+          "description": "Email address of the user.",
+          "type": "string",
+          "format": "email",
+          "minLength":8,
+          "maxLength": 128
+        },
+        "password": {
+          "description": "Password of the user.",
+          "type": "string",
+          "minLength":8,
+          "maxLength": 25
+        }
+      },
+      "required": ["id","username","email","password"],
+      "additionalProperties": false      
+    }
+  }
+}

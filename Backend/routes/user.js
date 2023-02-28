@@ -20,10 +20,13 @@ const jwtAuth = require('../controllers/jwt');
 /** Set a path for the user endpoint */
 const router = Router({prefix: '/api/v1/user'});
 
+/**Import validator */
+const validate = require("../controllers/validation").validateUser
+
 router.get('/',jwtAuth, getAll);
-router.post('/', bodyParser(), createUser);
+router.post('/', bodyParser(), validate, createUser);
 router.get('/:id([0-9]{1,})',jwtAuth, getById);
-router.put('/:id([0-9]{1,})',jwtAuth, bodyParser(), updateUser); 
+router.put('/:id([0-9]{1,})',jwtAuth, bodyParser(), validate, updateUser); 
 router.del('/:id([0-9]{1,})',jwtAuth, deleteUser);
 
 async function getAll(ctx, next)

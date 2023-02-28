@@ -19,21 +19,26 @@ const model = require("../models/author")
 const router = Router({prefix: '/api/v1/author'});
 
 /**Import JWT authentication strategy handler */
-const jwtAuth = require('../controllers/jwt');
+const jwtAuth = require("../controllers/jwt");
+
+/**Import validator */
+const {validateAuthorAdd,validateAuthorUpd} = require("../controllers/validation")
 
 /** Define which functions and middleware will be triggered by each request to the endpoint */
 router.get('/',jwtAuth, getAll);
-router.post('/',jwtAuth, bodyParser(),  addAuthor);
+router.post('/',jwtAuth, bodyParser(), validateAuthorAdd, addAuthor);
 router.get('/:id([0-9]{1,})',jwtAuth, getById);
-router.put('/:id([0-9]{1,})',jwtAuth, bodyParser(),updateAuthor); 
+//TODO: Take ID from request BODY instead.
+router.put('/:id([0-9]{1,})',jwtAuth, validateAuthorUpd, bodyParser(),updateAuthor); 
 router.del('/:id([0-9]{1,})',jwtAuth, deleteAuthor);
 
 
 
+//TODO: Comment other endpoints.
 /**
  * Endpoint responsible for getting a single user resource by user ID.
- * @param ctx Identifier to the context of the HTTP request.
- * @param next Add the next middleware on top of callstack, then remove it once it finishes. 
+ * @param {object} ctx Identifier to the context of the HTTP request.
+ * @param {function} next Add the next middleware on top of callstack, then remove it once it finishes. 
  */
 async function getById(ctx, next)
 {

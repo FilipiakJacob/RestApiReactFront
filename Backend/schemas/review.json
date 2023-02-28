@@ -1,0 +1,73 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "review": {
+      "id": "/review",
+      "title": "review",
+      "description": "Full schema of the review resource",
+      "type": "object",
+      "properties": {
+        "id": {
+          "description": "The id number of the review",
+          "type": "number"
+        },
+        "comment": {
+          "description": "Comment of the review",
+          "type": "string"
+        },
+        "rating": {
+          "description": "Rating of the review.",
+          "type": "number",
+          "minimum": 1,
+          "maximum": 10
+        },
+        "authorId": {
+          "description": "ID number of the review's author.",
+          "type": "number"
+        }
+      },
+      "required": ["id","comment","rating","authorId"],
+      "additionalProperties": false      
+    },
+    "reviewAdd": {
+      "id": "/reviewAdd",
+      "title": "reviewAdd",
+      "description": "Schema for adding a new review to the database",
+      "type": "object",
+      "properties": {
+        "comment": {
+          "description": "Comment of the review",
+          "type": "string"
+        },
+        "rating": {
+          "description": "Rating of the review.",
+          "type": "number",
+          "minimum": 1,
+          "maximum": 10
+        }
+      },
+      "required": ["comment","rating"],
+      "additionalProperties": false      
+    },
+    "reviewUpd": {
+      "id": "/reviewUpd",
+      "title": "reviewUpd",
+      "description": "Schema for modifying a review in the database",
+      "type": "object",
+      "properties": {
+        "comment": {
+          "description": "Comment of the review",
+          "type": "string"
+        },
+        "rating": {
+          "description": "Rating of the review.",
+          "type": "number",
+          "minimum": 1,
+          "maximum": 10
+        }
+      },
+      "required": ["id","comment","rating"],
+      "additionalProperties": false      
+    }
+  }
+}
