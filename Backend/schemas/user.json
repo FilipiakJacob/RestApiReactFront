@@ -25,12 +25,16 @@
         "password": {
           "description": "Password of the user.",
           "type": "string",
-          "minLength":8,
+          "minLength":4,
           "maxLength": 25
+        },
+        "role": {
+          "description": "Role of the user (e.g. Admin).",
+          "type": "string"
         }
       },
-      "required": ["id","username","email","password"],
-      "additionalProperties": false      
+      "readOnly": true,
+      "additionalProperties": false
     },
     "userAdd": {
       "id": "/userAdd",
@@ -52,7 +56,7 @@
         "password": {
           "description": "Password of the user.",
           "type": "string",
-          "minLength":8,
+          "minLength":4,
           "maxLength": 25
         }
       },
@@ -83,7 +87,7 @@
         "password": {
           "description": "Password of the user.",
           "type": "string",
-          "minLength":8,
+          "minLength":4,
           "maxLength": 25
         }
       },

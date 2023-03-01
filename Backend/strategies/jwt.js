@@ -31,17 +31,16 @@ const verifyToken = async (jwt_payload,done) => {
     try 
     {
         result = await user.getById(jwt_payload.sub);
-        username = result[0]["username"];
     } 
     catch (error) 
     {
-        console.error(`Error during authentication for user ${username}`);
+        console.error(`Error during authentication.`);
         return done(error);
     }
     if (result.length) 
     {   
         const user = result[0];
-        console.log(`Successfully authenticated user ${username}`);
+        console.log(`Successfully authenticated user`);
         return done(null, user);
     } 
     else 

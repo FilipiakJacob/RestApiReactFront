@@ -14,9 +14,13 @@
         "name": {
           "description": "Body text of the blog author",
           "type": "string"
+        },
+        "approved": {
+          "description": "0- Awaiting approval, 1- Approved.",
+          "type": "number"
         }
       },
-      "required": ["id","name"],
+      "readOnly": true,
       "additionalProperties": false      
     },
     "authorAdd": {
@@ -53,6 +57,25 @@
         }
       },
       "required": ["id","name"],
+      "additionalProperties": false      
+    },
+    "authorApprove": {
+      "id": "/authorApprove",
+      "title": "authorApprove",
+      "description": "Schema for approving an author submission.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "description": "The id number of the author",
+          "type": "number"
+        },
+        "approved": {
+          "description": "Whether the author should be approved to the website.",
+          "type": "string",
+          "enum": ["approve","reject"]
+        }
+      },
+      "required": ["id","approved"],
       "additionalProperties": false      
     }
   }

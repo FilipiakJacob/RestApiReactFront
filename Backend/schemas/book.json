@@ -42,6 +42,10 @@
         "contents": {
           "description": "The book PDF file",
           "type": "string"
+        },
+        "approved": {
+          "description": "0- Awaiting approval, 1- Approved.",
+          "type": "number"
         }
       },
       "required": ["id","name","authorId","date","isbn","description"],
@@ -133,6 +137,25 @@
         }
       },
       "required": ["name","authorId","date","isbn","description"],
+      "additionalProperties": false      
+    },
+    "bookApprove": {
+      "id": "/bookApprove",
+      "title": "bookApprove",
+      "description": "Schema for approving a book submission.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "description": "The id number of the book",
+          "type": "number"
+        },
+        "approved": {
+          "description": "Whether the book submission should be approved to the website.",
+          "type": "string",
+          "enum": ["approve","reject"]
+        }
+      },
+      "required": ["id","approved"],
       "additionalProperties": false      
     }
   }

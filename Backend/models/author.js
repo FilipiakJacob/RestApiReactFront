@@ -16,7 +16,7 @@ const db = require('../helpers/database');
  * @throws {DatabaseException} Custom exception for DB query failures
  */
 exports.getById = async function getById (id) {
-    let query = "SELECT * FROM authors WHERE ID = ?";
+    let query = "SELECT * FROM authors WHERE id = ?";
 
     let values = [id]; 
     let data = await db.run_query(query, values);
@@ -38,7 +38,7 @@ exports.getById = async function getById (id) {
 exports.getAll = async function getAll (page=0, limit=5, order="id", orderAD="descending") { 
     let offset = Math.max(0,page*limit-limit); //If page is 4 and limit is 5, it will show 15-20
     let values = [order, Number(limit), offset];
-    let query = "SELECT * FROM authors ORDER BY ? LIMIT ? OFFSET ?"; 
+    let query = "SELECT * FROM authors WHERE approved = 1 ORDER BY ? LIMIT ? OFFSET ?"; 
     let data = await db.run_query(query, values);
     return data; 
 }
@@ -52,8 +52,8 @@ exports.getAll = async function getAll (page=0, limit=5, order="id", orderAD="de
  * @throws {DatabaseException} Custom exception for DB query failures
  */
 exports.add = async function add (author) { 
-    let query = "INSERT INTO authors SET name=?";
-    let data = await db.run_query(query, [author.name]); 
+    let query = "INSERT INTO authors SET ?";
+    let data = await db.run_query(query, author); 
     return data; 
 }
 
@@ -68,8 +68,8 @@ exports.add = async function add (author) {
  */
 exports.update = async function update(id,author)
 {
-    let values = [author.name,id];
-    let query = "UPDATE authors SET name=? WHERE id=?";
+    let values = [author,id];
+    let query = "UPDATE authors SET ? WHERE id=?";
     let data = await db.run_query(query, values);
     return data;
 }
@@ -90,3 +90,21 @@ exports.delete = async function deleteArticle(id)
 
 }
 
+/**
+ * List all unapproved authors in the database.
+ * 
+ * @param {int} [page=0] The page of results to return.
+ * @param {int} [limit=5] The number of results per page.
+ * @param {string} [order="id"] The parameter by which to sort the results.
+ * @param {string} [orderAD="descending"] Whether order should be ascending or descending.
+ * @returns {object} MySQL results object
+ * @throws {DatabaseException} Custom exception for DB query failures
+ */
+//TODO: Ascending/descending sort
+exports.getUnapproved = async function getUnapproved (page=0, limit=5, order="id", orderAD="descending") { 
+    let offset = Math.max(0,page*limit-limit); //If page is 4 and limit is 5, it will show 15-20
+    let values = [order, Number(limit), offset];
+    let query = "SELECT * FROM authors WHERE approved = 0 ORDER BY ? LIMIT ? OFFSET ?"; 
+    let data = await db.run_query(query, values);
+    return data; 
+}

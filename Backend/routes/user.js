@@ -15,19 +15,20 @@ const bodyParser = require("koa-bodyparser");
 const model = require("../models/user")
 
 /**Import JWT authentication strategy handler */
-const jwtAuth = require('../controllers/jwt');
+const {reqLogin, optionalLogin} = require("../controllers/jwt");
 
 /** Set a path for the user endpoint */
 const router = Router({prefix: '/api/v1/user'});
 
 /**Import validator */
-const validate = require("../controllers/validation").validateUser
+const { validateUserAdd, validateUserUpd } = require("../controllers/validation");
 
-router.get('/',jwtAuth, getAll);
-router.post('/', bodyParser(), validate, createUser);
-router.get('/:id([0-9]{1,})',jwtAuth, getById);
-router.put('/:id([0-9]{1,})',jwtAuth, bodyParser(), validate, updateUser); 
-router.del('/:id([0-9]{1,})',jwtAuth, deleteUser);
+router.get('/',optionalLogin, getAll);
+//TODO: Limit duplicates
+router.post('/', bodyParser(), validateUserAdd, createUser);
+router.get('/:id([0-9]{1,})',optionalLogin, getById);
+router.put('/:id([0-9]{1,})',reqLogin, bodyParser(), validateUserUpd, updateUser); 
+router.del('/:id([0-9]{1,})',reqLogin, deleteUser);
 
 async function getAll(ctx, next)
 {

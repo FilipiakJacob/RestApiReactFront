@@ -57,10 +57,9 @@ exports.getAll = async function getAll (page=0, limit=5, order="id", orderAD="de
  * @throws {DatabaseException} Custom exception for DB query failures
  */
 exports.add = async function add (user) { 
-    let pwHash = await bcrypt.hash(user["password"],10);
-    let values = [user["username"], user["email"], pwHash];
-    let query = "INSERT INTO users SET username = ?, email= ?, password = ?";
-    let data = await db.run_query(query, values);
+    user.password = await bcrypt.hash(user.password,10);
+    let query = "INSERT INTO users SET ?";
+    let data = await db.run_query(query, user);
     return data
 }
 
@@ -75,10 +74,9 @@ exports.add = async function add (user) {
  * @throws {DatabaseException} Custom exception for DB query failures
  */
 exports.update = async function update (id, user) {
-    let pwHash = await bcrypt.hash(user["password"],10);
-    let values = [user["username"], user["email"], pwHash, id];
-    let query = "UPDATE users SET username = ?, email=?, password = ? WHERE id = ?";
-    let data = await db.run_query(query, values);
+    user.password = await bcrypt.hash(user.password,10);
+    let query = "UPDATE users SET ? WHERE id = ?";
+    let data = await db.run_query(query, [user,id]);
     return data; 
 }
 

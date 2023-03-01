@@ -61,9 +61,8 @@ exports.getAll = async function getAll (page=0, limit=5, order="id", orderAD="de
  */
 //TODO: Add sending files with the request.
 exports.add = async function add (book) { 
-    let query = "INSERT INTO books SET name=?, authorId=?, date=?, isbn=?, description=?, cover=?, contents=?";
-    let values = [book.name, book.authorId, book.date, book.isbn, book.description, book.cover, book.contents]
-    let data = await db.run_query(query, values); 
+    let query = "INSERT INTO books SET ?";
+    let data = await db.run_query(query, book); 
     return data; 
 }
 
@@ -83,8 +82,8 @@ exports.add = async function add (book) {
  */
 exports.update = async function update(id,book)
 {
-    let values = [book.name, book.authorId, book.date, book.isbn, book.description, book.cover, book.contents, id];
-    let query = "UPDATE books SET name=?, authorId=?, date=?, isbn=?, description=?, cover=?, contents=? WHERE id=?";
+    let values = [book, id];
+    let query = "UPDATE books SET ? WHERE id=?";
     let data = await db.run_query(query, values);
     return data;
 }

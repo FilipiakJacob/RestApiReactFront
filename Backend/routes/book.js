@@ -18,17 +18,17 @@ const model = require("../models/book")
 const router = Router({prefix: '/api/v1/book'});
 
 /**Import JWT authentication strategy handler */
-const jwtAuth = require('../controllers/jwt');
+const {reqLogin, optionalLogin} = require("../controllers/jwt");
 
 /**Import validator */
-const validate = require("../controllers/validation").validateBook
+const {validateBookAdd,validateBookUpd} = require("../controllers/validation")
 
 /** Define which functions and middleware will be triggered by each request to the endpoint */
-router.get('/',jwtAuth, getAll);
-router.post('/',jwtAuth, bodyParser(), validate, addBook);
-router.get('/:id([0-9]{1,})',jwtAuth, getById);
-router.put('/:id([0-9]{1,})',jwtAuth, bodyParser(), validate, updateBook); 
-router.del('/:id([0-9]{1,})',jwtAuth, deleteBook);
+router.get('/',optionalLogin, getAll);
+router.post('/',reqLogin, bodyParser(), validateBookAdd, addBook);
+router.get('/:id([0-9]{1,})',optionalLogin, getById);
+router.put('/:id([0-9]{1,})',reqLogin, bodyParser(), validateBookUpd, updateBook); 
+router.del('/:id([0-9]{1,})',reqLogin, deleteBook);
 
 
 /**

@@ -19,18 +19,22 @@ const model = require("../models/author")
 const router = Router({prefix: '/api/v1/author'});
 
 /**Import JWT authentication strategy handler */
-const jwtAuth = require("../controllers/jwt");
+const {reqLogin, optionalLogin} = require("../controllers/jwt");
 
 /**Import validator */
 const {validateAuthorAdd,validateAuthorUpd} = require("../controllers/validation")
 
+const can = require("../permissions/author")
+
 /** Define which functions and middleware will be triggered by each request to the endpoint */
-router.get('/',jwtAuth, getAll);
-router.post('/',jwtAuth, bodyParser(), validateAuthorAdd, addAuthor);
-router.get('/:id([0-9]{1,})',jwtAuth, getById);
+router.get('/',optionalLogin, getAll);
+router.post('/',reqLogin, bodyParser(), validateAuthorAdd, addAuthor);
+router.get('/:id([0-9]{1,})',optionalLogin, getById);
 //TODO: Take ID from request BODY instead.
-router.put('/:id([0-9]{1,})',jwtAuth, validateAuthorUpd, bodyParser(),updateAuthor); 
-router.del('/:id([0-9]{1,})',jwtAuth, deleteAuthor);
+router.put('/:id([0-9]{1,})',reqLogin, validateAuthorUpd, bodyParser(),updateAuthor); 
+router.del('/:id([0-9]{1,})',reqLogin, deleteAuthor);
+
+router.get('/unapproved', reqLogin, getUnapproved);
 
 
 
@@ -42,15 +46,15 @@ router.del('/:id([0-9]{1,})',jwtAuth, deleteAuthor);
  */
 async function getById(ctx, next)
 {
-    const permission= {
-        granted : true
+    //If the user did not provide a JWT, they are unregistered.
+    if(!ctx.state.user)
+    {
+        ctx.state.user = {"role":"unregistered"};
     }
-    // Get the ID from the route parameters.
-    console.log(permission.granted)
     let id = ctx.params.id;
     // If it exists then return the author as JSON.
     let author = await model.getById(id);
-    //const permission = can.read(author[0]);
+    const permission = can.read(ctx.state.user,author[0]);
     if (!permission.granted) {
         ctx.status = 403;
     }
@@ -65,13 +69,32 @@ async function getById(ctx, next)
 
 async function getAll(ctx, next)
 {
+    //If the user did not provide a JWT, they are unregistered.
+    if(!ctx.state.user)
+    {
+        ctx.state.user = {"role":"unregistered"};
+    }
     const page = ctx.query.page;
     const limit = ctx.query.limit;
     const order = ctx.query.order;
-    let authors = await model.getAll(page, limit, order);
-    // Use the response body to send the authors as JSON. 
-    if (authors.length) {
-        ctx.body = authors;
+    const permission = can.readAll(ctx.state.user);
+    //Check permissions.
+    if (!permission.granted) 
+    {
+        ctx.status = 403;
+    }
+    else
+    {
+        let authors = await model.getAll(page, limit, order);
+        //Check user permissions.
+        if (authors.length) 
+        {
+            ctx.body = authors;
+        }
+        else
+        {
+            ctx.status = 404;
+        }
     }
 }
 
@@ -120,6 +143,23 @@ async function deleteAuthor(ctx, next)
         if (result) 
         {
             ctx.status = 200;
+        }
+    }
+}
+
+async function getUnapproved(ctx, next)
+{
+    const permission = can.readUnapproved(ctx.state.user);
+    if (!permission.granted) {
+        ctx.status = 403;
+    }
+    else
+    {
+        let authors = await model.getUnapproved();
+        if (authors.length)
+        {
+            ctx.status = 201;
+            ctx.body = authors;
         }
     }
 }
