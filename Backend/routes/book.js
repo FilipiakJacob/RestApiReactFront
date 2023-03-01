@@ -21,7 +21,7 @@ const router = Router({prefix: '/api/v1/book'});
 const {reqLogin, optionalLogin} = require("../controllers/jwt");
 
 /**Import validator */
-const {validateBookAdd,validateBookUpd} = require("../controllers/validation")
+const {validateBookAdd,validateBookUpd, validateBookApprove} = require("../controllers/validation")
 
 /** Define which functions and middleware will be triggered by each request to the endpoint */
 router.get('/',optionalLogin, getAll);
@@ -30,6 +30,9 @@ router.get('/:id([0-9]{1,})',optionalLogin, getById);
 router.put('/:id([0-9]{1,})',reqLogin, bodyParser(), validateBookUpd, updateBook); 
 router.del('/:id([0-9]{1,})',reqLogin, deleteBook);
 
+/** Routes for admin to see and approve book submissions. */
+router.get('/unapproved', reqLogin, getUnapproved);
+router.patch('/unapproved([0-9]{1,})', reqLogin, validateBookApprove, approveBook);
 
 /**
  * Endpoint responsible for getting a single user resource by user ID.
@@ -115,6 +118,51 @@ async function deleteBook(ctx, next)
         if (result) 
         {
             ctx.status = 200;
+        }
+    }
+}
+
+async function getUnapproved(ctx, next)
+{
+    const permission = can.readUnapproved(ctx.state.user);
+    if (!permission.granted) 
+    {
+        ctx.status = 403;
+    }
+    else
+    {
+        let books = await model.getUnapproved();
+        if (books.length)
+        {
+            ctx.status = 201;
+            ctx.body = books;
+        }
+        else
+        {
+            ctx.status = 404;
+        }
+    }
+}
+
+async function approveBook(ctx, next)
+{
+    const permission = can.approveAuthor(ctx.state.user);
+    if (!permission.granted)
+    {
+        ctx.status = 403;
+    }
+    else
+    {
+        let id = ctx.params.id;
+        let body = ctx.request.body;
+        let result = await model.approveAuthor(id, body);
+        if (result)
+        {
+            ctx.status = 204;
+        }
+        else
+        {
+            ctx.status = 404;
         }
     }
 }

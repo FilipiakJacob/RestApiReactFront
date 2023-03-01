@@ -104,3 +104,23 @@ exports.delete = async function deleteArticle(id)
 
 }
 
+/**
+ * Takes ID of book in DB and an book object containing approval. If the approval is equal
+ * to "approve", the book is approved. If it is equal to "reject", the book is deleted from the database.
+ * @param {number} id The ID number of the book in the database.
+ * @param {object} book The book object.
+ * @param {string} book.approved The approval option. Either "approve" or "reject"
+ */
+ exports.approveBook = async function approveBook (id, book)
+ {
+     if(book.approved = "approve")
+     {
+         var query = "UPDATE book SET approved = 1 WHERE id=?";
+     }
+     if(book.approved = "reject")
+     {
+         var query = "DELETE FROM books WHERE id=?";
+     }
+     let data = await db.run_query(query, id);
+     return data;
+ }

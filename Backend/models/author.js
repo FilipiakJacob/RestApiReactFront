@@ -108,3 +108,24 @@ exports.getUnapproved = async function getUnapproved (page=0, limit=5, order="id
     let data = await db.run_query(query, values);
     return data; 
 }
+
+/**
+ * Takes ID of author in DB and an author object containing approval. If the approval is equal
+ * to "approve", the author is approved. If it is equal to "reject", the author is deleted from the database.
+ * @param {number} id The ID number of the author in the database.
+ * @param {object} author The author object.
+ * @param {string} author.approved The approval option. Either "approve" or "reject"
+ */
+exports.approveAuthor = async function approveAuthor (id, author)
+{
+    if(author.approved = "approve")
+    {
+        var query = "UPDATE authors SET approved = 1 WHERE id=?";
+    }
+    if(author.approved = "reject")
+    {
+        var query = "DELETE FROM authors WHERE id=?";
+    }
+    let data = await db.run_query(query, id);
+    return data;
+}

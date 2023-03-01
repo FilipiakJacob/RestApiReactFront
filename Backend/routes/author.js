@@ -22,7 +22,7 @@ const router = Router({prefix: '/api/v1/author'});
 const {reqLogin, optionalLogin} = require("../controllers/jwt");
 
 /**Import validator */
-const {validateAuthorAdd,validateAuthorUpd} = require("../controllers/validation")
+const {validateAuthorAdd,validateAuthorUpd, validateAuthorApprove} = require("../controllers/validation")
 
 const can = require("../permissions/author")
 
@@ -34,8 +34,9 @@ router.get('/:id([0-9]{1,})',optionalLogin, getById);
 router.put('/:id([0-9]{1,})',reqLogin, validateAuthorUpd, bodyParser(),updateAuthor); 
 router.del('/:id([0-9]{1,})',reqLogin, deleteAuthor);
 
+/** Routes for the admin to see and approve book author submissions. */
 router.get('/unapproved', reqLogin, getUnapproved);
-
+router.patch('/unapproved([0-9]{1,})', reqLogin, validateAuthorApprove, approveAuthor);
 
 
 //TODO: Comment other endpoints.
@@ -63,6 +64,10 @@ async function getById(ctx, next)
         if (author.length)
         {
             ctx.body = author[0];
+        }
+        else
+        {
+            ctx.status = 404;
         }
     }
 }
@@ -109,6 +114,10 @@ async function addAuthor(ctx, next)
         ctx.status = 201;
         ctx.body = {ID: result.insertId}
     }
+    else
+    {
+        ctx.status = 404;
+    }
 }
 
 async function updateAuthor(ctx, next)
@@ -127,6 +136,10 @@ async function updateAuthor(ctx, next)
         {
             ctx.status = 204;
         }
+        else
+        {
+            ctx.status = 404;
+        }
     }
 }
 
@@ -144,13 +157,18 @@ async function deleteAuthor(ctx, next)
         {
             ctx.status = 200;
         }
+        else
+        {
+            ctx.status = 404;
+        }
     }
 }
 
 async function getUnapproved(ctx, next)
 {
     const permission = can.readUnapproved(ctx.state.user);
-    if (!permission.granted) {
+    if (!permission.granted) 
+    {
         ctx.status = 403;
     }
     else
@@ -161,7 +179,33 @@ async function getUnapproved(ctx, next)
             ctx.status = 201;
             ctx.body = authors;
         }
+        else
+        {
+            ctx.status = 404;
+        }
     }
 }
 
+async function approveAuthor(ctx, next)
+{
+    const permission = can.approveAuthor(ctx.state.user);
+    if (!permission.granted)
+    {
+        ctx.status = 403;
+    }
+    else
+    {
+        let id = ctx.params.id;
+        let body = ctx.request.body;
+        let result = await model.approveAuthor(id, body);
+        if (result)
+        {
+            ctx.status = 204;
+        }
+        else
+        {
+            ctx.status = 404;
+        }
+    }
+}
 module.exports = router;

@@ -15,8 +15,8 @@ const {Validator, ValidationError} = require('jsonschema');
 
 const v = new Validator();
 
-const {author, authorAdd, authorUpd } = require('../schemas/author.json').definitions;
-const {book, bookAdd, bookUpd } = require('../schemas/book.json').definitions;
+const {author, authorAdd, authorUpd, authorApprove } = require('../schemas/author.json').definitions;
+const {book, bookAdd, bookUpd, bookApprove } = require('../schemas/book.json').definitions;
 const {review, reviewAdd, reviewUpd } = require('../schemas/review.json').definitions;
 const {user, userAdd, userUpd } = require('../schemas/user.json').definitions;
 
@@ -61,10 +61,12 @@ const makeKoaValidator = (schema, resource) => {
 exports.validateAuthor = makeKoaValidator(author, 'author');
 exports.validateAuthorAdd = makeKoaValidator(authorAdd, 'authorAdd');
 exports.validateAuthorUpd= makeKoaValidator(authorUpd, 'authorUpd');
+exports.validateAuthorApprove= makeKoaValidator(authorApprove, 'authorApprove');
 /** Validate data against book schema */
 exports.validateBook = makeKoaValidator(book, 'book');
 exports.validateBookAdd = makeKoaValidator(bookAdd, 'bookAdd');
 exports.validateBookUpd= makeKoaValidator(bookUpd, 'bookUpd');
+exports.validateBookApprove= makeKoaValidator(bookApprove, 'bookApprove');
 /** Validate data against review schema */
 exports.validateReview = makeKoaValidator(review, 'review');
 exports.validateReviewAdd = makeKoaValidator(reviewAdd, 'reviewAdd');

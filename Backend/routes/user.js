@@ -23,10 +23,10 @@ const router = Router({prefix: '/api/v1/user'});
 /**Import validator */
 const { validateUserAdd, validateUserUpd } = require("../controllers/validation");
 
-router.get('/',optionalLogin, getAll);
+router.get('/',reqLogin, getAll);
 //TODO: Limit duplicates
-router.post('/', bodyParser(), validateUserAdd, createUser);
-router.get('/:id([0-9]{1,})',optionalLogin, getById);
+router.post('/',optionalLogin, bodyParser(), validateUserAdd, createUser);
+router.get('/:id([0-9]{1,})',reqLogin, getById);
 router.put('/:id([0-9]{1,})',reqLogin, bodyParser(), validateUserUpd, updateUser); 
 router.del('/:id([0-9]{1,})',reqLogin, deleteUser);
 
