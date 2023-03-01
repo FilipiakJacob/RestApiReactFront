@@ -40,7 +40,7 @@ const verifyToken = async (jwt_payload,done) => {
     if (result.length) 
     {   
         const user = result[0];
-        console.log(`Successfully authenticated user`);
+        console.log(`Successfully authenticated user ${user["username"]}`);
         return done(null, user);
     } 
     else 

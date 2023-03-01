@@ -51,6 +51,7 @@ exports.getAll = async function getAll (page=0, limit=5, order="id", orderAD="de
  * @param {string} review.comment The comment of the review
  * @param {int} review.rating The rating of the review
  * @param {string} review.authorId The ID of the review's author.
+ * @param {string} review.bookId The ID of the book which is being reviewed.
  * @returns {object} MySQL results object
  * @throws {DatabaseException} Custom exception for DB query failures
  */

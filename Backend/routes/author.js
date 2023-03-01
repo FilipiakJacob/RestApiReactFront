@@ -27,9 +27,12 @@ const {validateAuthorAdd,validateAuthorUpd, validateAuthorApprove} = require("..
 const can = require("../permissions/author")
 
 /** Define which functions and middleware will be triggered by each request to the endpoint */
+
+/**Get routes are available for unregistered users (JWT authentication is optional) */
 router.get('/',optionalLogin, getAll);
-router.post('/',reqLogin, bodyParser(), validateAuthorAdd, addAuthor);
 router.get('/:id([0-9]{1,})',optionalLogin, getById);
+
+router.post('/',reqLogin, bodyParser(), validateAuthorAdd, addAuthor);
 //TODO: Take ID from request BODY instead.
 router.put('/:id([0-9]{1,})',reqLogin, validateAuthorUpd, bodyParser(),updateAuthor); 
 router.del('/:id([0-9]{1,})',reqLogin, deleteAuthor);
@@ -39,7 +42,6 @@ router.get('/unapproved', reqLogin, getUnapproved);
 router.patch('/unapproved([0-9]{1,})', reqLogin, validateAuthorApprove, approveAuthor);
 
 
-//TODO: Comment other endpoints.
 /**
  * Endpoint responsible for getting a single user resource by user ID.
  * @param {object} ctx Identifier to the context of the HTTP request.
@@ -48,27 +50,27 @@ router.patch('/unapproved([0-9]{1,})', reqLogin, validateAuthorApprove, approveA
 async function getById(ctx, next)
 {
     //If the user did not provide a JWT, they are unregistered.
-    if(!ctx.state.user)
-    {
-        ctx.state.user = {"role":"unregistered"};
-    }
     let id = ctx.params.id;
-    // If it exists then return the author as JSON.
     let author = await model.getById(id);
-    const permission = can.read(ctx.state.user,author[0]);
-    if (!permission.granted) {
-        ctx.status = 403;
-    }
-    else
-    {
-        if (author.length)
+    if (author.length)
+    {        
+        if(!ctx.state.user)
         {
-            ctx.body = author[0];
+            ctx.state.user = {"role":"unregistered"};
+        }
+        const permission = can.read(ctx.state.user,author[0]);
+        if (!permission.granted) {
+            ctx.status = 403;
         }
         else
         {
-            ctx.status = 404;
+            ctx.status = 200;
+            ctx.body = author[0];
         }
+    }
+    else
+    {
+        ctx.status = 404;
     }
 }
 
@@ -82,8 +84,8 @@ async function getAll(ctx, next)
     const page = ctx.query.page;
     const limit = ctx.query.limit;
     const order = ctx.query.order;
-    const permission = can.readAll(ctx.state.user);
     //Check permissions.
+    const permission = can.readAll(ctx.state.user);
     if (!permission.granted) 
     {
         ctx.status = 403;
@@ -94,6 +96,7 @@ async function getAll(ctx, next)
         //Check user permissions.
         if (authors.length) 
         {
+            ctx.status = 200;
             ctx.body = authors;
         }
         else
@@ -105,18 +108,24 @@ async function getAll(ctx, next)
 
 async function addAuthor(ctx, next)
 {
-    // The body parser gives us access to the request body on cnx.request.body. 
-    // Use this to extract the title and fullText we were sent.
-    const body = ctx.request.body;
-    let result = await model.add(body,ctx.state.user.ID); 
-    if (result) 
+    const permission = can.upload(ctx.state.user);
+    if (!permission.granted) 
     {
-        ctx.status = 201;
-        ctx.body = {ID: result.insertId}
+        ctx.status = 403;
     }
     else
     {
-        ctx.status = 404;
+        const body = ctx.request.body;
+        let result = await model.add(body); 
+        if (result) 
+        {
+            ctx.status = 201;
+            ctx.body = {ID: result.insertId}
+        }
+        else
+        {
+            ctx.status = 400;
+        }
     }
 }
 
@@ -125,7 +134,7 @@ async function updateAuthor(ctx, next)
     let id = ctx.params.id;
     let body = ctx.request.body;
     const article = await model.getById(id);
-    const permission = can.update(ctx.state.user,article[0]);
+    const permission = can.update(ctx.state.user);
     if (!permission.granted) {
         ctx.status = 403;
     }
@@ -176,7 +185,7 @@ async function getUnapproved(ctx, next)
         let authors = await model.getUnapproved();
         if (authors.length)
         {
-            ctx.status = 201;
+            ctx.status = 200;
             ctx.body = authors;
         }
         else

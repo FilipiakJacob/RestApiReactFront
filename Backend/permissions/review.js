@@ -36,8 +36,8 @@ ac.grant("admin").execute("delete")
     .on("review");
 
 
-exports.read = (requester, review) =>
-    ac.can(requester.role).context({approved:review.approved}).execute("read").sync().on("review");
+exports.read = (requester) =>
+    ac.can(requester.role).execute("read").sync().on("review");
 
 exports.readAll = (requester) =>
     ac.can(requester.role).execute("readAll").sync().on("reviews")
@@ -45,8 +45,8 @@ exports.readAll = (requester) =>
 exports.upload = (requester) =>
     ac.can(requester.role).execute("upload").sync().on("review");
 
-exports.update = (requester) =>  
-    ac.can(requester.role).execute("update").sync().on("review");
+exports.update = (requester,review) =>  
+    ac.can(requester.role).context({requester:requester.Id, owner:review.authorId}).execute("update").sync().on("review");
 
 exports.delete = (requester) =>    
     ac.can(requester.role).execute("delete").sync().on("review");

@@ -20,13 +20,18 @@ const router = Router({prefix: '/api/v1/book'});
 /**Import JWT authentication strategy handler */
 const {reqLogin, optionalLogin} = require("../controllers/jwt");
 
+const can = require("../permissions/book");
+
 /**Import validator */
 const {validateBookAdd,validateBookUpd, validateBookApprove} = require("../controllers/validation")
 
 /** Define which functions and middleware will be triggered by each request to the endpoint */
+
+/**Get routes are available for unregistered users (JWT authentication is optional) */
 router.get('/',optionalLogin, getAll);
-router.post('/',reqLogin, bodyParser(), validateBookAdd, addBook);
 router.get('/:id([0-9]{1,})',optionalLogin, getById);
+
+router.post('/',reqLogin, bodyParser(), validateBookAdd, addBook);
 router.put('/:id([0-9]{1,})',reqLogin, bodyParser(), validateBookUpd, updateBook); 
 router.del('/:id([0-9]{1,})',reqLogin, deleteBook);
 
@@ -41,48 +46,81 @@ router.patch('/unapproved([0-9]{1,})', reqLogin, validateBookApprove, approveBoo
  */
 async function getById(ctx, next)
 {
-    const permission= {
-        granted : true
-    }
     // Get the ID from the route parameters.
     let id = ctx.params.id;
-    // If it exists then return the book as JSON.
     let book = await model.getById(id);
-    //const permission = can.read(book[0]);
-    if (!permission.granted) {
-        ctx.status = 403;
+    if (book.length)
+    {
+        if(!ctx.state.user)
+        {
+            ctx.state.user = {"role":"unregistered"};
+        }
+        const permission = can.read(ctx.state.user, book[0]);
+        if (!permission.granted) 
+        {
+            ctx.status = 403;
+        }
+        else
+        {
+            ctx.status = 200;
+            ctx.body = book[0];
+        }
     }
     else
     {
-        if (book.length)
-        {
-            ctx.body = book[0];
-        }
+        ctx.status = 404;
     }
 }
 
 async function getAll(ctx, next)
 {
-    const page = ctx.query.page;
-    const limit = ctx.query.limit;
-    const order = ctx.query.order;
-    let books = await model.getAll(page, limit, order);
-    // Use the response body to send the books as JSON. 
-    if (books.length) {
-        ctx.body = books;
+    if(!ctx.state.user)
+    {
+        ctx.state.user = {"role":"unregistered"};
+    }
+    const permission = can.readAll(ctx.state.user);
+    if (!permission.granted) 
+    {
+        ctx.status = 403;
+    }
+    else
+    {
+        const page = ctx.query.page;
+        const limit = ctx.query.limit;
+        const order = ctx.query.order;
+        let books = await model.getAll(page, limit, order);
+        if (books.length) 
+        {
+            ctx.status = 200;
+            ctx.body = books;
+        }
+        else
+        {
+            ctx.status = 404;
+        }
     }
 }
 
 async function addBook(ctx, next)
 {
-    // The body parser gives us access to the request body on cnx.request.body. 
-    // Use this to extract the title and fullText we were sent.
-    const body = ctx.request.body;
-    let result = await model.add(body,ctx.state.user.ID); 
-    if (result) 
+    const permission = can.upload(ctx.state.user, book);
+    if (!permission.granted) 
     {
-        ctx.status = 201;
-        ctx.body = {ID: result.insertId}
+        ctx.status = 403;
+    }
+    else
+    {
+        const body = ctx.request.body;
+        let result = await model.add(body); 
+        if (result) 
+        {
+            ctx.status = 201;
+            ctx.body = {ID: result.insertId}
+        }
+        else
+        {
+            ctx.status = 400;
+        }
     }
 }
 
@@ -90,18 +128,29 @@ async function updateBook(ctx, next)
 {
     let id = ctx.params.id;
     let body = ctx.request.body;
-    const article = await model.getById(id);
-    const permission = can.update(ctx.state.user,article[0]);
-    if (!permission.granted) {
-        ctx.status = 403;
+    const book = await model.getById(id);
+    if(book)
+    {
+        const permission = can.update(ctx.state.user,book[0]);
+        if (!permission.granted) {
+            ctx.status = 403;
+        }
+        else
+        {
+            let result = await model.update(id,body)
+            if (result) 
+            {
+                ctx.status = 204;
+            }
+            else
+            {
+                ctx.status = 400;
+            }
+        }
     }
     else
     {
-        let result = await model.update(id,body)
-        if (result) 
-        {
-            ctx.status = 204;
-        }
+        ctx.status = 404;
     }
 }
 
@@ -119,6 +168,10 @@ async function deleteBook(ctx, next)
         {
             ctx.status = 200;
         }
+        else
+        {
+            ctx.status = 404;
+        }
     }
 }
 
@@ -134,7 +187,7 @@ async function getUnapproved(ctx, next)
         let books = await model.getUnapproved();
         if (books.length)
         {
-            ctx.status = 201;
+            ctx.status = 200;
             ctx.body = books;
         }
         else
@@ -146,7 +199,7 @@ async function getUnapproved(ctx, next)
 
 async function approveBook(ctx, next)
 {
-    const permission = can.approveAuthor(ctx.state.user);
+    const permission = can.approveBook(ctx.state.user);
     if (!permission.granted)
     {
         ctx.status = 403;

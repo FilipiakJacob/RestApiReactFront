@@ -15,7 +15,7 @@ const bodyParser = require("koa-bodyparser");
 const model = require("../models/review")
 
 /** Set a path for the review endpoint */
-const router = Router({prefix: '/api/v1/review'});
+const router = Router({prefix: "/api/v1/review"});
 
 /**Import JWT authentication strategy handler */
 const {reqLogin, optionalLogin} = require("../controllers/jwt");
@@ -23,15 +23,18 @@ const {reqLogin, optionalLogin} = require("../controllers/jwt");
 /** Import validator */
 const { validateReviewAdd, validateReviewUpd } = require("../controllers/validation");
 
+/** Import permissions. */
+const can = require("../permissions/review");
+
 
 
 /** Define which functions and middleware will be triggered by each request to the endpoint */
-router.get('/',optionalLogin,  getAll);
+router.get("/",optionalLogin,  getAll);
 //TODO: Get review author ID from JWT instead of requiring it in schema.
-router.post('/',reqLogin, bodyParser(), validateReviewAdd, addReview);
-router.get('/:id([0-9]{1,})',optionalLogin, getById);
-router.put('/:id([0-9]{1,})',reqLogin, bodyParser(), validateReviewUpd, updateReview); 
-router.del('/:id([0-9]{1,})',reqLogin, deleteReview);
+router.post("/",reqLogin, bodyParser(), validateReviewAdd, addReview);
+router.get("/:id([0-9]{1,})",optionalLogin, getById);
+router.put("/:id([0-9]{1,})",reqLogin, bodyParser(), validateReviewUpd, updateReview); 
+router.del("/:id([0-9]{1,})",reqLogin, deleteReview);
 
 
 /**
@@ -41,48 +44,82 @@ router.del('/:id([0-9]{1,})',reqLogin, deleteReview);
  */
 async function getById(ctx, next)
 {
-    const permission= {
-        granted : true
-    }
     // Get the ID from the route parameters.
     let id = ctx.params.id;
-    // If it exists then return the review as JSON.
     let review = await model.getById(id);
-    //const permission = can.read(review[0]);
-    if (!permission.granted) {
-        ctx.status = 403;
-    }
-    else
+    if(review.length)
     {
-        if (review.length)
+        if(!ctx.state.user)
         {
+            ctx.state.user = {"role":"unregistered"};
+        }
+        const permission = can.read(ctx.state.user, review[0])
+        if (!permission.granted) 
+        {
+            ctx.status = 403;
+        }
+        else
+        {
+            ctx.status = 200;
             ctx.body = review[0];
         }
     }
+    else
+    {
+        ctx.status = 404;
+    }   
 }
 
 async function getAll(ctx, next)
 {
-    const page = ctx.query.page;
-    const limit = ctx.query.limit;
-    const order = ctx.query.order;
-    let reviews = await model.getAll(page, limit, order);
-    // Use the response body to send the reviews as JSON. 
-    if (reviews.length) {
-        ctx.body = reviews;
+    if(!ctx.state.user)
+    {
+        ctx.state.user = {"role":"unregistered"};
+    }
+    const permission = can.readAll(ctx.state.user);
+    if (!permission.granted) 
+    {
+        ctx.status = 403;
+    }
+    else
+    {
+        const page = ctx.query.page;
+        const limit = ctx.query.limit;
+        const order = ctx.query.order;
+        let reviews = await model.getAll(page, limit, order);
+        if (reviews.length) 
+        {
+            ctx.status = 200;
+            ctx.body = reviews;
+        }
+        else
+        {
+            ctx.status = 404;
+        }
     }
 }
 
 async function addReview(ctx, next)
 {
-    // The body parser gives us access to the request body on cnx.request.body. 
-    // Use this to extract the title and fullText we were sent.
-    const body = ctx.request.body;
-    let result = await model.add(body,ctx.state.user.ID); 
-    if (result) 
+    const permission = can.upload(ctx.state.user);
+    if (!permission.granted) 
     {
-        ctx.status = 201;
-        ctx.body = {ID: result.insertId}
+        ctx.status = 403;
+    }
+    else
+    {
+        const body = ctx.request.body;
+        body.authorId = ctx.state.user.id;
+        let result = await model.add(body); 
+        if (result) 
+        {
+            ctx.status = 201;
+            ctx.body = {ID: result.insertId}
+        }
+        else
+        {
+            ctx.status = 400;
+        }
     }
 }
 
@@ -90,23 +127,36 @@ async function updateReview(ctx, next)
 {
     let id = ctx.params.id;
     let body = ctx.request.body;
-    const article = await model.getById(id);
-    const permission = can.update(ctx.state.user,article[0]);
-    if (!permission.granted) {
-        ctx.status = 403;
+    const review = await model.getById(id);
+    if (review)
+    { 
+        const permission = can.update(ctx.state.user,review[0]);
+        if (!permission.granted) 
+        {
+            ctx.status = 403;
+        }
+        else
+        {
+            let result = await model.update(id,body)
+            if (result) 
+            {
+                ctx.status = 204;
+            }
+            else
+            {
+                ctx.status = 400;
+            }
+        }
     }
     else
     {
-        let result = await model.update(id,body)
-        if (result) 
-        {
-            ctx.status = 204;
-        }
+        ctx.status = 404;
     }
 }
 
 async function deleteReview(ctx, next)
 {
+    //TODO: Users can delete their own reviews
     const permission = can.delete(ctx.state.user);
     if (!permission.granted) {
         ctx.status = 403;
