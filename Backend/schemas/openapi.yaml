@@ -1,0 +1,686 @@
+openapi: 3.0.0
+info:
+  title: Book Database Api
+  description: A simple API which provides access to a database of books and their authors.
+  version: 1.0.0
+  license:
+    name: Apache 2.0
+    url: 'https://www.apache.org/licenses/LICENSE-2.0.html'
+servers:
+  - url: 'https://turboexhibit-diegosalsa-8080.codio-box.uk/api/v1'
+    description: Development server on Codio
+components:
+  securitySchemes:
+    jwtAuth:     
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    basicAuth:
+      type: http
+      scheme: basic
+  responses:
+    NotFoundError:
+      description: The specified resource was not found.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    UnauthorizedError:
+      description: JWT is missing or invalid. Please log in using the /login endpoint. 
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    SchemaValidationError:
+      description: Invalid resource schema provided in request body.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    PermissionError:
+      description: Access level not sufficient for accessing requested resource.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ServerSideError:
+      description: Something went wrong on the server side. If this keeps repeating, contact the admin.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  schemas:
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+      required:
+        - message
+    JWT:
+      type: object
+      properties:
+        token:
+          type: string
+        expiresIn:
+          type: string
+      required:
+        -token
+        -expiresIn
+tags:
+  - name: Login
+    description: API endpoint for verifying user credentials and requesting a Json Web Token for authentication.
+  - name: User
+    description: API endpoint for user account management, e.g. creating an account.
+  - name: Book
+    description: >
+      API endpoint for performing CRUD operations on "books" in the database.
+      This endpoint represents the book resource. Each book is identified by an ID.
+      Requesting resources from this endpoint is available without verification.
+  - name: Author
+    description: API endpoint for performing CRUD operations on "book authors" in the database.
+  - name: Review
+    description: API endpoint for performing CRUD operations on "book reviews" in the database.
+paths:
+  /login:
+    description:
+      Endpoint used for verification of provided user credentials and distribution of JSON Web Tokens.
+    get:
+      security:
+        - basicAuth: []
+      tags:
+        - Login
+      description: 
+        Request JWT representing the user whose credentials were provided to this endpoint using BasicAuth.
+      responses:
+        '200':
+          description: JWT granted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JWT'
+        '401':
+          description: Invalid user credentials in BasicAuth.
+  /user:
+    description: This endpoint represents the user account resource. Each user is identified by an ID.
+    get:
+      security:
+        - jwtAuth: []
+      tags:
+        - User
+      description:
+        Get data of all users from the database.
+      responses:
+        '200':
+          description: Array of all user records.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: ./user.json#/definitions/userGet
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403': 
+          $ref: '#/components/responses/PermissionError'
+    post:
+      tags:
+        - User
+      description:
+        Add data of a single user to the database (register).
+      responses:
+        '201':
+          description: User account created.
+        '400':
+          $ref: '#/components/responses/SchemaValidationError'
+        '500':
+          $ref: '#/components/responses/ServerSideError'
+      requestBody:
+        description: All new user data.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./user.json#/definitions/userAdd
+  /user/{id}:
+    parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+        description: Numeric id of the user
+    get:
+      security:
+        - jwtAuth: []
+      tags:
+        - User
+      description:
+        Get data of a single user.
+      responses:
+        '200':
+          description: View of user data.
+          content:
+            application/json:
+              schema:
+                $ref: ./user.json#/definitions/userGet
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403': 
+          $ref: '#/components/responses/PermissionError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    put:
+      security:
+        - jwtAuth: []
+      tags:
+        - User
+      description:
+        Modify data of a single user.
+      responses:
+        '204':
+          description: Modified user account.
+        '400':
+          $ref: '#/components/responses/SchemaValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403': 
+          $ref: '#/components/responses/PermissionError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/ServerSideError'
+      requestBody:
+        description: Modifiable user data and user ID.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./user.json#/definitions/userUpd
+    delete:
+      security:
+        - jwtAuth: []
+      tags:
+        - User
+      description:
+        Delete the data of a single user.
+      responses:
+        '204':
+          description: Deleted user account.
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403': 
+          $ref: '#/components/responses/PermissionError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/ServerSideError'
+  /book:
+    get:
+      tags:
+        - Book
+      summary:
+        Get all book records.
+      description:
+        Get data of all books from the database. Does not include the full contents (request individual books for this).
+      responses:
+        '200':
+          description: Array of all book records from the database.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: ./book.json#/definitions/bookGetAll
+        '403': 
+          $ref: '#/components/responses/PermissionError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    post:
+      security:
+        - jwtAuth: []
+      tags:
+        - Book
+      summary:
+        Add book data to the database.
+      description:
+        Add book data to the database. Returns the record ID.
+      responses:
+        '201':
+          description: Added succesfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+        '400':
+          $ref: '#/components/responses/SchemaValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403': 
+          $ref: '#/components/responses/PermissionError'
+        '500':
+          $ref: '#/components/responses/ServerSideError'
+      requestBody:
+        description: All book data. 
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./book.json#/definitions/bookAdd
+  /book/{id}:
+    get:
+      tags:
+        - Book
+      summary:
+        Get a single book resource from the database.
+      description:
+        Get a book resource from the database, together with the full text.
+      responses:
+        '200':
+          description: Full data of the book.
+          content:
+            application/json:
+              schema:
+                $ref: ./book.json#/definitions/book
+        '403': 
+          $ref: '#/components/responses/PermissionError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    put:
+      security:
+        - jwtAuth: []
+      tags:
+        - Book
+      description:
+        Modify data of a single book.
+      responses:
+        '204':
+          description: Modified book resource.
+        '400':
+          $ref: '#/components/responses/SchemaValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403': 
+          $ref: '#/components/responses/PermissionError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/ServerSideError'
+      requestBody:
+        description: Modifiable book data and book ID.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./book.json#/definitions/bookUpd
+    delete:
+      security:
+        - jwtAuth: []
+      tags:
+        - Book
+      description:
+        Delete the data of a single book.
+      responses:
+        '204':
+          description: Deleted book.
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403': 
+          $ref: '#/components/responses/PermissionError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/ServerSideError'
+  /book/unapproved:
+    get:
+      tags:
+        - Book
+      summary:
+        Get all unapproved book records. Admin only.
+      description: >
+        Get data of all books from the database which are awaiting approval.
+        Does not include the full contents (request individual books for this).
+        Admin only.
+      responses:
+        '200':
+          description: Array of all unapproved book records from the database.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: ./book.json#/definitions/bookGetAll
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403': 
+          $ref: '#/components/responses/PermissionError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    patch:
+      security:
+        - jwtAuth: []
+      tags:
+        - Book
+      summary:
+        Change the approval status of a book in the database.
+      description: >
+        Change the approval status of a book submitted to the database. 
+        0 is default, unapproved and invisible to nonadmins.
+        Send "approve" to approve the book and make it visible,
+        "reject" to delete it from the database.
+        Admin only.
+      responses:
+        '204':
+          description: Modified succesfully.
+        '400':
+          $ref: '#/components/responses/SchemaValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403': 
+          $ref: '#/components/responses/PermissionError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        description: Book ID and "approve" or "reject".
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./book.json#/definitions/bookApprove
+  /author:
+    get:
+      tags:
+        - Author
+      summary:
+        Get all author records.
+      description:
+        Get data of all authors from the database. Does not include the full contents (request individual authors for this).
+      responses:
+        '200':
+          description: Array of all author records from the database.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: ./author.json#/definitions/authorGet
+        '403': 
+          $ref: '#/components/responses/PermissionError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    post:
+      security:
+        - jwtAuth: []
+      tags:
+        - Author
+      summary:
+        Add author data to the database.
+      description:
+        Add author data to the database. Returns the record ID.
+      responses:
+        '201':
+          description: Added succesfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+        '400':
+          $ref: '#/components/responses/SchemaValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403': 
+          $ref: '#/components/responses/PermissionError'
+        '500':
+          $ref: '#/components/responses/ServerSideError'
+      requestBody:
+        description: All author data. 
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./author.json#/definitions/authorAdd
+  /author/{id}:
+    get:
+      tags:
+        - Author
+      summary:
+        Get a single author resource from the database.
+      description:
+        Get an author resource from the database.
+      responses:
+        '200':
+          description: Full data of the author.
+          content:
+            application/json:
+              schema:
+                $ref: ./author.json#/definitions/authorGet
+        '403': 
+          $ref: '#/components/responses/PermissionError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    put:
+      security:
+        - jwtAuth: []
+      tags:
+        - Author
+      description:
+        Modify data of a single author.
+      responses:
+        '204':
+          description: Modified author resource.
+        '400':
+          $ref: '#/components/responses/SchemaValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403': 
+          $ref: '#/components/responses/PermissionError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/ServerSideError'
+      requestBody:
+        description: Modifiable author data and author ID.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./author.json#/definitions/authorUpd
+    delete:
+      security:
+        - jwtAuth: []
+      tags:
+        - Author
+      description:
+        Delete the data of a single author.
+      responses:
+        '204':
+          description: Deleted author.
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403': 
+          $ref: '#/components/responses/PermissionError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/ServerSideError'
+  /author/unapproved:
+    get:
+      tags:
+        - Author
+      summary:
+        Get all unapproved author records. Admin only.
+      description: >
+        Get data of all authors from the database which are awaiting approval.
+        Does not include the full contents (request individual authors for this).
+        Admin only.
+      responses:
+        '200':
+          description: Array of all unapproved author records from the database.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: ./author.json#/definitions/authorGet
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403': 
+          $ref: '#/components/responses/PermissionError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    patch:
+      security:
+        - jwtAuth: []
+      tags:
+        - Author
+      summary:
+        Change the approval status of a author in the database.
+      description: >
+        Change the approval status of a author submitted to the database. 
+        0 is default, unapproved and invisible to nonadmins.
+        Send "approve" to approve the author and make it visible,
+        "reject" to delete it from the database.
+        Admin only.
+      responses:
+        '204':
+          description: Modified succesfully.
+        '400':
+          $ref: '#/components/responses/SchemaValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403': 
+          $ref: '#/components/responses/PermissionError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+      requestBody:
+        description: author ID and "approve" or "reject".
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./author.json#/definitions/authorApprove
+  /review:
+    get:
+      tags:
+        - Review
+      summary:
+        Get all review records.
+      description:
+        Get data of all reviews from the database. Does not include the full contents (request individual reviews for this).
+      responses:
+        '200':
+          description: Array of all review records from the database.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: ./review.json#/definitions/review
+        '403': 
+          $ref: '#/components/responses/PermissionError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    post:
+      security:
+        - jwtAuth: []
+      tags:
+        - Review
+      summary:
+        Add review data to the database.
+      description:
+        Add review data to the database. Returns the record ID.
+      responses:
+        '201':
+          description: Added succesfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+        '400':
+          $ref: '#/components/responses/SchemaValidationError'
+        '401':
+          $ref: '#/components/responses/UnreviewizedError'
+        '403': 
+          $ref: '#/components/responses/PermissionError'
+        '500':
+          $ref: '#/components/responses/ServerSideError'
+      requestBody:
+        description: All review data. 
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./review.json#/definitions/reviewAdd
+  /review/{id}:
+    get:
+      tags:
+        - Review
+      summary:
+        Get a single review resource from the database.
+      description:
+        Get a review resource from the database.
+      responses:
+        '200':
+          description: Full data of the review.
+          content:
+            application/json:
+              schema:
+                $ref: ./review.json#/definitions/review
+        '403': 
+          $ref: '#/components/responses/PermissionError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    put:
+      security:
+        - jwtAuth: []
+      tags:
+        - Review
+      description:
+        Modify data of a single review.
+      responses:
+        '204':
+          description: Modified review resource.
+        '400':
+          $ref: '#/components/responses/SchemaValidationError'
+        '401':
+          $ref: '#/components/responses/UnreviewizedError'
+        '403': 
+          $ref: '#/components/responses/PermissionError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/ServerSideError'
+      requestBody:
+        description: Modifiable review data and review ID.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./review.json#/definitions/reviewUpd
+    delete:
+      security:
+        - jwtAuth: []
+      tags:
+        - Review
+      description:
+        Delete the data of a single review.
+      responses:
+        '204':
+          description: Deleted review.
+        '401':
+          $ref: '#/components/responses/UnreviewizedError'
+        '403': 
+          $ref: '#/components/responses/PermissionError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/ServerSideError'

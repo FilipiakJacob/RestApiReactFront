@@ -15,109 +15,170 @@ const bodyParser = require("koa-bodyparser");
 const model = require("../models/user")
 
 /**Import JWT authentication strategy handler */
-const jwtAuth = require('../controllers/jwt');
+const {reqLogin, optionalLogin} = require("../controllers/jwt");
 
 /** Set a path for the user endpoint */
-const router = Router({prefix: '/api/v1/user'});
+const router = Router({prefix: "/api/v1/user"});
 
 /**Import validator */
-const validate = require("../controllers/validation").validateUser
+const { validateUserAdd, validateUserUpd } = require("../controllers/validation");
 
-router.get('/',jwtAuth, getAll);
-router.post('/', bodyParser(), validate, createUser);
-router.get('/:id([0-9]{1,})',jwtAuth, getById);
-router.put('/:id([0-9]{1,})',jwtAuth, bodyParser(), validate, updateUser); 
-router.del('/:id([0-9]{1,})',jwtAuth, deleteUser);
+/**Import permissions */
+const can = require("../permissions/user")
 
-async function getAll(ctx, next)
-{
-    const permission= {
-        granted : true
-    }
-    //const permission = can.readAll(ctx.state.user); //ctx.state.user is set by jwt strategy
-    if (!permission.granted) {
-        ctx.status = 403;
-    } else {
-        const users = await model.getAll(); 
-        // Use the response body to send the articles as JSON. 
-        if (users.length) {
-            ctx.body = users;
-        }
-    }
-}
+router.get("/",reqLogin, getAll);
+//TODO: Limit duplicates
+router.post("/",optionalLogin, bodyParser(), validateUserAdd, createUser);
+router.get("/:id([0-9]{1,})",reqLogin, getById);
+router.put("/:id([0-9]{1,})",reqLogin, bodyParser(), validateUserUpd, updateUser); 
+router.del("/:id([0-9]{1,})",reqLogin, deleteUser);
 
 async function getById(ctx)
 {
-    const permission= {
-        granted : true
-    }
     // Get the ID from the route parameters.
-    let id = ctx.params.id;
-    // Check if the user has the same ID as the user resource they're requesting.
-    //const permission = can.read(ctx.state.user,{"ID":Number(id)})
-    if (!permission.granted) {
-        ctx.status = 403;
+    const id = ctx.params.id;
+    const user = await model.getById(id);
+    if (user.length)
+    {
+        if(!ctx.state.user)
+        {
+            ctx.state.user = {"role":"unregistered"};
+        }
+        const permission = can.read(ctx.state.user, user[0]);
+        if (!permission.granted) 
+        {
+            ctx.status = 403;
+        }
+        else
+        {
+            //Filter out data that is not allowed for permission level.
+            console.log(permission.attributes)
+            user[0] = permission.filter(user[0])
+            ctx.status = 200;
+            ctx.body = user[0];
+        }
     }
     else
     {
-        let userInDb = await model.getById(id);
-        // If it exists then return the user as JSON.
-        if (userInDb.length)
+        ctx.status = 404;
+    }
+}
+
+async function getAll(ctx, next)
+{
+    if(!ctx.state.user)
+    {
+        ctx.state.user = {"role":"unregistered"};
+    }
+    const permission = can.readAll(ctx.state.user);
+    if (!permission.granted) 
+    {
+        ctx.status = 403;
+        ctx.body = "Only admins can view all records."
+    }
+    else
+    {
+        const page = ctx.query.page;
+        const limit = ctx.query.limit;
+        const order = ctx.query.order;
+        let users = await model.getAll(page, limit, order);
+        if (users.length) 
         {
-            ctx.body = userInDb[0];
+            //Filter out data from each record
+            users.forEach((user,index) => {
+                users[index] = permission.filter(user);
+            });
+            ctx.status = 200;
+            ctx.body = users;
+        }
+        else
+        {
+            ctx.status = 404;
+            ctx.body = "No user records found."
         }
     }
 }
 
+
 async function createUser(ctx)
 {
-    // The body parser gives us access to the request body on cnx.request.body. 
-    // Use this to extract the title and fullText we were sent.
     const body = ctx.request.body;
     let result = await model.add(body); 
     if (result) 
     {
         ctx.status = 201;
         ctx.body = {ID: result.insertId}
-
     }
-
+    else
+    {
+        ctx.status = 500;
+        ctx.body = "Something went wrong on the server side. If this keeps happening, contact the admin."
+    }
 }
 
 async function updateUser(ctx)
 {
     let id = ctx.params.id;
     let body = ctx.request.body;
-    // Check if the user has the same ID as the user resource they're requesting.
-    const permission = can.update(ctx.state.user,{"ID":Number(id)})
-    if (!permission.granted) {
-        ctx.status = 403;
+    const user = await model.getById(id);
+    if (user)
+    { 
+        const permission = can.update(ctx.state.user,user[0]);
+        if (!permission.granted) 
+        {
+            ctx.status = 403;
+            ctx.body = "Users can only modify their own account."
+        }
+        else
+        {
+            let result = await model.update(id,body)
+            if (result) 
+            {
+                ctx.status = 204;
+            }
+            else
+            {
+                ctx.status = 500;
+                ctx.body = "Something went wrong on the server side. If this keeps happening, contact the admin."
+            }
+        }
     }
     else
     {
-        let result = await model.update(id,body)
-        if (result) 
-        {
-            ctx.status = 204;
-        }
+        ctx.status = 404;
+        ctx.body = "No user records found."
     }
 }
 
 async function deleteUser(ctx)
 {
-    let id = ctx.params.id;
-    // Check if the user has the same ID as the user resource they're requesting.
-    const permission = can.delete(ctx.state.user,{"ID":Number(id)})
-    if (!permission.granted) {
-        ctx.status = 403;
+    const id = ctx.params.id;
+    const user = await model.getById(id);
+    if (user.length) 
+    {
+        const permission = can.delete(ctx.state.user, user[0]);
+        if (!permission.granted) {
+            ctx.status = 403;
+            ctx.body = "Users can only delete their own account."
+        }
+        else
+        {
+            const result = await model.delete(id)
+            if (result)
+            {
+                ctx.status = 200;
+            }
+            else
+            {
+                ctx.status = 500;
+                ctx.body = "Something went wrong on the server side. If this keeps happening, contact the admin."
+            }
+        }
     }
     else
     {
-        let result = await model.delete(id);
-        if (result) 
-        {
-            ctx.status = 200;
-        }
+        ctx.status = 404;
+        ctx.body = "No user records found."
     }
 }
 

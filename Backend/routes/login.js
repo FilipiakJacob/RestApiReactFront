@@ -1,5 +1,5 @@
 /**
- * The module's purpose is creating a login endpoint. The user can send a
+ * The module"s purpose is creating a login endpoint. The user can send a
  * GET request to this endpoint and provide the username and password through
  * BasicAuth. If the data is correct, they will be issued a JSON Web Token for access
  * to other endpoints. 
@@ -7,15 +7,15 @@
  * @author JF
  */
 
-const Router = require('koa-router')
-const basicAuth = require('../controllers/basic');
-const jsonwebtoken = require('jsonwebtoken')
-const router = Router({prefix: '/api/v1/login'});
+const Router = require("koa-router")
+const basicAuth = require("../controllers/basic");
+const jsonwebtoken = require("jsonwebtoken")
+const router = Router({prefix: "/api/v1/login"});
 const jwtConfig = require("../config").JWTConfig
 
 
 
-router.get('/',basicAuth,logIn);
+router.get("/",basicAuth,logIn);
 
 
 /**
@@ -30,7 +30,7 @@ async function logIn(ctx, next)
 {
     let user = ctx.state.user;
     const jwt = issueJWT(user);
-    ctx.status = 201;
+    ctx.status = 200;
     ctx.body = {
         token:jwt.token,
         expiresIn:jwt.expires
@@ -38,7 +38,7 @@ async function logIn(ctx, next)
 }
 
 /**
- * Function takes the user's data and produces a JWT for authentication.
+ * Function takes the user"s data and produces a JWT for authentication.
  * 
  * @param {object} user Object containing data about the user.
  * @param {string} user.id The ID number of the user 
@@ -47,7 +47,7 @@ async function logIn(ctx, next)
 //TODO:Set lower expiry date, create refresh.
 function issueJWT(user)
 {
-    const expireIn = '1d';
+    const expireIn = "1d";
 
     const payload ={
         sub: user.id,

@@ -18,18 +18,26 @@ const model = require("../models/book")
 const router = Router({prefix: '/api/v1/book'});
 
 /**Import JWT authentication strategy handler */
-const jwtAuth = require('../controllers/jwt');
+const {reqLogin, optionalLogin} = require("../controllers/jwt");
+
+const can = require("../permissions/book");
 
 /**Import validator */
-const validate = require("../controllers/validation").validateBook
+const {validateBookAdd,validateBookUpd, validateBookApprove} = require("../controllers/validation")
 
 /** Define which functions and middleware will be triggered by each request to the endpoint */
-router.get('/',jwtAuth, getAll);
-router.post('/',jwtAuth, bodyParser(), validate, addBook);
-router.get('/:id([0-9]{1,})',jwtAuth, getById);
-router.put('/:id([0-9]{1,})',jwtAuth, bodyParser(), validate, updateBook); 
-router.del('/:id([0-9]{1,})',jwtAuth, deleteBook);
 
+/**Get routes are available for unregistered users (JWT authentication is optional) */
+router.get('/',optionalLogin, getAll);
+router.get('/:id([0-9]{1,})',optionalLogin, getById);
+
+router.post('/',reqLogin, bodyParser(), validateBookAdd, addBook);
+router.put('/:id([0-9]{1,})',reqLogin, bodyParser(), validateBookUpd, updateBook); 
+router.del('/:id([0-9]{1,})',reqLogin, deleteBook);
+
+/** Routes for admin to see and approve book submissions. */
+router.get('/unapproved', reqLogin, getUnapproved);
+router.patch('/unapproved([0-9]{1,})', reqLogin, validateBookApprove, approveBook);
 
 /**
  * Endpoint responsible for getting a single user resource by user ID.
@@ -38,48 +46,87 @@ router.del('/:id([0-9]{1,})',jwtAuth, deleteBook);
  */
 async function getById(ctx, next)
 {
-    const permission= {
-        granted : true
-    }
     // Get the ID from the route parameters.
     let id = ctx.params.id;
-    // If it exists then return the book as JSON.
     let book = await model.getById(id);
-    //const permission = can.read(book[0]);
-    if (!permission.granted) {
-        ctx.status = 403;
+    if (book.length)
+    {
+        if(!ctx.state.user)
+        {
+            ctx.state.user = {"role":"unregistered"};
+        }
+        const permission = can.read(ctx.state.user, book[0]);
+        if (!permission.granted) 
+        {
+            ctx.status = 403;
+            ctx.body = "Insufficient access level to access this resource."
+        }
+        else
+        {
+            ctx.status = 200;
+            ctx.body = book[0];
+        }
     }
     else
     {
-        if (book.length)
-        {
-            ctx.body = book[0];
-        }
+        ctx.status = 404;
+        ctx.body = "There is no such resource in the records."
     }
 }
 
 async function getAll(ctx, next)
 {
-    const page = ctx.query.page;
-    const limit = ctx.query.limit;
-    const order = ctx.query.order;
-    let books = await model.getAll(page, limit, order);
-    // Use the response body to send the books as JSON. 
-    if (books.length) {
-        ctx.body = books;
+    if(!ctx.state.user)
+    {
+        ctx.state.user = {"role":"unregistered"};
+    }
+    const permission = can.readAll(ctx.state.user);
+    if (!permission.granted) 
+    {
+        ctx.status = 403;
+        ctx.body = "Insufficient access level to access this resource."
+    }
+    else
+    {
+        const page = ctx.query.page;
+        const limit = ctx.query.limit;
+        const order = ctx.query.order;
+        let books = await model.getAll(page, limit, order);
+        if (books.length) 
+        {
+            ctx.status = 200;
+            ctx.body = books;
+        }
+        else
+        {
+            ctx.status = 404;
+            ctx.body = "There is no such resource in the records."
+        }
     }
 }
 
 async function addBook(ctx, next)
 {
-    // The body parser gives us access to the request body on cnx.request.body. 
-    // Use this to extract the title and fullText we were sent.
-    const body = ctx.request.body;
-    let result = await model.add(body,ctx.state.user.ID); 
-    if (result) 
+    const permission = can.upload(ctx.state.user, book);
+    if (!permission.granted) 
     {
-        ctx.status = 201;
-        ctx.body = {ID: result.insertId}
+        ctx.status = 403;
+        ctx.body = "Insufficient access level."
+    }
+    else
+    {
+        const body = ctx.request.body;
+        let result = await model.add(body); 
+        if (result) 
+        {
+            ctx.status = 201;
+            ctx.body = {ID: result.insertId}
+        }
+        else
+        {
+            ctx.status = 500;
+            ctx.body = "Something went wrong on the server side. If this keeps happening, contact the admin."
+        }
     }
 }
 
@@ -87,18 +134,33 @@ async function updateBook(ctx, next)
 {
     let id = ctx.params.id;
     let body = ctx.request.body;
-    const article = await model.getById(id);
-    const permission = can.update(ctx.state.user,article[0]);
-    if (!permission.granted) {
-        ctx.status = 403;
+    const book = await model.getById(id);
+    if(book)
+    {
+        const permission = can.update(ctx.state.user,book[0]);
+        if (!permission.granted) 
+        {
+            ctx.status = 403;
+            ctx.body = "Insufficient access level."
+        }
+        else
+        {
+            let result = await model.update(id,body)
+            if (result) 
+            {
+                ctx.status = 204;
+            }
+            else
+            {
+                ctx.status = 500;
+                ctx.body = "Something went wrong on the server side. If this keeps happening, contact the admin."
+            }
+        }
     }
     else
     {
-        let result = await model.update(id,body)
-        if (result) 
-        {
-            ctx.status = 204;
-        }
+        ctx.status = 404;
+        ctx.body = "There is no such resource in the records."
     }
 }
 
@@ -107,6 +169,7 @@ async function deleteBook(ctx, next)
     const permission = can.delete(ctx.state.user);
     if (!permission.granted) {
         ctx.status = 403;
+        ctx.body = "Insufficient access level to delete this resource."
     }
     else
     {
@@ -115,6 +178,60 @@ async function deleteBook(ctx, next)
         if (result) 
         {
             ctx.status = 200;
+        }
+        else
+        {
+            ctx.status = 404;
+            ctx.body = "There is no such resource in the records."
+        }
+    }
+}
+
+async function getUnapproved(ctx, next)
+{
+    const permission = can.readUnapproved(ctx.state.user);
+    if (!permission.granted) 
+    {
+        ctx.status = 403;
+        ctx.body = "Insufficient access level."
+    }
+    else
+    {
+        let books = await model.getUnapproved();
+        if (books.length)
+        {
+            ctx.status = 200;
+            ctx.body = books;
+        }
+        else
+        {
+            ctx.status = 404;
+            ctx.body = "There are no unapproved books in the database."
+        }
+    }
+}
+
+async function approveBook(ctx, next)
+{
+    const permission = can.approveBook(ctx.state.user);
+    if (!permission.granted)
+    {
+        ctx.status = 403;
+        ctx.body = "Insufficient access level."
+    }
+    else
+    {
+        let id = ctx.params.id;
+        let body = ctx.request.body;
+        let result = await model.approveBook(id, body);
+        if (result)
+        {
+            ctx.status = 204;
+        }
+        else
+        {
+            ctx.status = 404;
+            ctx.body = "There is no such resource in the database."
         }
     }
 }

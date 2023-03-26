@@ -51,12 +51,13 @@ exports.getAll = async function getAll (page=0, limit=5, order="id", orderAD="de
  * @param {string} review.comment The comment of the review
  * @param {int} review.rating The rating of the review
  * @param {string} review.authorId The ID of the review's author.
+ * @param {string} review.bookId The ID of the book which is being reviewed.
  * @returns {object} MySQL results object
  * @throws {DatabaseException} Custom exception for DB query failures
  */
 exports.add = async function add (review) { 
-    let query = "INSERT INTO reviews SET comment=?";
-    let data = await db.run_query(query, [review.comment]); 
+    let query = "INSERT INTO reviews SET ?";
+    let data = await db.run_query(query, review); 
     return data; 
 }
 
@@ -73,8 +74,8 @@ exports.add = async function add (review) {
  */
 exports.update = async function update(id,review)
 {
-    let values = [review.comment,id];
-    let query = "UPDATE reviews SET comment=? WHERE id=?";
+    let values = [review,id];
+    let query = "UPDATE reviews SET ? WHERE id=?";
     let data = await db.run_query(query, values);
     return data;
 }
