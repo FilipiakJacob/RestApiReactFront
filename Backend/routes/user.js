@@ -74,6 +74,7 @@ async function getAll(ctx, next)
     if (!permission.granted) 
     {
         ctx.status = 403;
+        ctx.body = "Only admins can view all records."
     }
     else
     {
@@ -93,6 +94,7 @@ async function getAll(ctx, next)
         else
         {
             ctx.status = 404;
+            ctx.body = "No user records found."
         }
     }
 }
@@ -109,7 +111,8 @@ async function createUser(ctx)
     }
     else
     {
-        ctx.status = 400;
+        ctx.status = 500;
+        ctx.body = "Something went wrong on the server side. If this keeps happening, contact the admin."
     }
 }
 
@@ -124,6 +127,7 @@ async function updateUser(ctx)
         if (!permission.granted) 
         {
             ctx.status = 403;
+            ctx.body = "Users can only modify their own account."
         }
         else
         {
@@ -134,13 +138,15 @@ async function updateUser(ctx)
             }
             else
             {
-                ctx.status = 400;
+                ctx.status = 500;
+                ctx.body = "Something went wrong on the server side. If this keeps happening, contact the admin."
             }
         }
     }
     else
     {
         ctx.status = 404;
+        ctx.body = "No user records found."
     }
 }
 
@@ -153,6 +159,7 @@ async function deleteUser(ctx)
         const permission = can.delete(ctx.state.user, user[0]);
         if (!permission.granted) {
             ctx.status = 403;
+            ctx.body = "Users can only delete their own account."
         }
         else
         {
@@ -163,9 +170,15 @@ async function deleteUser(ctx)
             }
             else
             {
-                ctx.status = 400;
+                ctx.status = 500;
+                ctx.body = "Something went wrong on the server side. If this keeps happening, contact the admin."
             }
         }
+    }
+    else
+    {
+        ctx.status = 404;
+        ctx.body = "No user records found."
     }
 }
 

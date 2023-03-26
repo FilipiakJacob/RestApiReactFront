@@ -40,7 +40,7 @@
           "type": "string"
         },
         "contents": {
-          "description": "The book PDF file",
+          "description": "The book contents",
           "type": "string"
         },
         "approved": {
@@ -48,7 +48,7 @@
           "type": "number"
         }
       },
-      "required": ["id","name","authorId","date","isbn","description"],
+      "required": ["id","name","authorId","date","isbn","description","contents","approved"],
       "additionalProperties": false      
     },
     "bookAdd": {
@@ -136,7 +136,7 @@
           "type": "string"
         }
       },
-      "required": ["name","authorId","date","isbn","description"],
+      "required": ["name","authorId","date","isbn","description","contents","approved"],
       "additionalProperties": false      
     },
     "bookApprove": {
@@ -157,6 +157,46 @@
       },
       "required": ["id","approved"],
       "additionalProperties": false      
+    },
+    "bookGetAll": {
+      "id": "/bookGetAll",
+      "title": "bookGetAll",
+      "description": "Schema of the book resource how it appears when requesting all books (does not include the full text)",
+      "type": "object",
+      "properties": {
+        "id": {
+          "description": "The id number of the book",
+          "type": "number"
+        },
+        "name": {
+          "description": "Name of the book",
+          "type": "string"
+        },
+        "authorId": {
+          "description": "ID of the book's author",
+          "type": "number"
+        },
+        "date": {
+          "description": "Date of the book being published",
+          "type": "string",
+          "format": "date"
+        },
+        "isbn": {
+          "description": "ISBN-13 number of the book",
+          "type": "string",
+          "minLength":14,
+          "maxLength": 14
+        },
+        "description": {
+          "description": "Description of the book",
+          "type": "string",
+          "maxLength": 1024
+        },
+        "cover": {
+          "description": "Cover image of the book",
+          "type": "string"
+        }
+      }
     }
   }
 }

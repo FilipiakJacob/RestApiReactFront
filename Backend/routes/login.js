@@ -30,7 +30,7 @@ async function logIn(ctx, next)
 {
     let user = ctx.state.user;
     const jwt = issueJWT(user);
-    ctx.status = 201;
+    ctx.status = 200;
     ctx.body = {
         token:jwt.token,
         expiresIn:jwt.expires

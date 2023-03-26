@@ -29,10 +29,6 @@
       "description": "Schema for adding an author to the database.",
       "type": "object",
       "properties": {
-        "id": {
-          "description": "The id number of the author",
-          "type": "number"
-        },
         "name": {
           "description": "The name of the author",
           "type": "string"
@@ -76,6 +72,24 @@
         }
       },
       "required": ["id","approved"],
+      "additionalProperties": false      
+    },
+    "authorGet": {
+      "id": "/authorGet",
+      "title": "authorGet",
+      "description": "Full schema of the Author resource",
+      "type": "object",
+      "properties": {
+        "id": {
+          "description": "The id number of the author",
+          "type": "number"
+        },
+        "name": {
+          "description": "Body text of the blog author",
+          "type": "string"
+        }
+      },
+      "readOnly": true,
       "additionalProperties": false      
     }
   }

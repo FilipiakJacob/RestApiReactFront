@@ -57,6 +57,7 @@ async function getById(ctx, next)
         if (!permission.granted) 
         {
             ctx.status = 403;
+            ctx.body = "Insufficient access level to access this resource."
         }
         else
         {
@@ -67,6 +68,7 @@ async function getById(ctx, next)
     else
     {
         ctx.status = 404;
+        ctx.body = "There is no such resource in the records."
     }   
 }
 
@@ -80,6 +82,7 @@ async function getAll(ctx, next)
     if (!permission.granted) 
     {
         ctx.status = 403;
+        ctx.body = "Insufficient access level to access this resource."
     }
     else
     {
@@ -95,6 +98,7 @@ async function getAll(ctx, next)
         else
         {
             ctx.status = 404;
+            ctx.body = "There is no such resource in the records."
         }
     }
 }
@@ -105,6 +109,7 @@ async function addReview(ctx, next)
     if (!permission.granted) 
     {
         ctx.status = 403;
+        ctx.body = "Insufficient access level."
     }
     else
     {
@@ -118,7 +123,8 @@ async function addReview(ctx, next)
         }
         else
         {
-            ctx.status = 400;
+            ctx.status = 500;
+            ctx.body = "Something went wrong on the server side. If this keeps happening, contact the admin."
         }
     }
 }
@@ -134,6 +140,7 @@ async function updateReview(ctx, next)
         if (!permission.granted) 
         {
             ctx.status = 403;
+            ctx.body = "Insufficient access level."
         }
         else
         {
@@ -145,12 +152,14 @@ async function updateReview(ctx, next)
             else
             {
                 ctx.status = 400;
+                ctx.body = "Something went wrong on the server side. If this keeps happening, contact the admin."
             }
         }
     }
     else
     {
         ctx.status = 404;
+        ctx.body = "There is no such resource in the records."
     }
 }
 
@@ -160,6 +169,7 @@ async function deleteReview(ctx, next)
     const permission = can.delete(ctx.state.user);
     if (!permission.granted) {
         ctx.status = 403;
+        ctx.body = "Insufficient access level to delete this resource."
     }
     else
     {
@@ -168,6 +178,11 @@ async function deleteReview(ctx, next)
         if (result) 
         {
             ctx.status = 200;
+        }
+        else
+        {
+            ctx.status = 404;
+            ctx.body = "There is no such resource in the records."
         }
     }
 }

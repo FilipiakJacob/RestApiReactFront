@@ -93,6 +93,35 @@
       },
       "required": ["id","username","email","password"],
       "additionalProperties": false      
+    },
+    "userGet": {
+      "id": "/userGet",
+      "title": "userGet",
+      "description": "Schema for Get user response.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "description": "The id number of the user.",
+          "type": "number"
+        },
+        "username": {
+          "description": "Username of the user.",
+          "type": "string"
+        },
+        "email": {
+          "description": "Email address of the user.",
+          "type": "string",
+          "format": "email",
+          "minLength":8,
+          "maxLength": 128
+        },
+        "role": {
+          "description": "Role of the user (e.g. admin, registered).",
+          "type": "string"
+        }
+      },
+      "readOnly": true,
+      "additionalProperties": false
     }
   }
 }

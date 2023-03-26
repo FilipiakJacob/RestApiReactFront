@@ -23,6 +23,7 @@
     "passport-http": "^0.3.0",
     "passport-jwt": "^4.0.1",
     "promise-mysql": "^5.2.0",
+    "redoc": "^2.0.0",
     "role-acl": "^4.5.4"
   },
   "devDependencies": {

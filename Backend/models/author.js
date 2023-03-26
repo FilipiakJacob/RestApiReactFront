@@ -38,7 +38,7 @@ exports.getById = async function getById (id) {
 exports.getAll = async function getAll (page=0, limit=5, order="id", orderAD="descending") { 
     let offset = Math.max(0,page*limit-limit); //If page is 4 and limit is 5, it will show 15-20
     let values = [order, Number(limit), offset];
-    let query = "SELECT * FROM authors WHERE approved = 1 ORDER BY ? LIMIT ? OFFSET ?"; 
+    let query = "SELECT `id`,`name` FROM authors WHERE approved = 1 ORDER BY ? LIMIT ? OFFSET ?"; 
     let data = await db.run_query(query, values);
     return data; 
 }
@@ -104,7 +104,7 @@ exports.delete = async function deleteArticle(id)
 exports.getUnapproved = async function getUnapproved (page=0, limit=5, order="id", orderAD="descending") { 
     let offset = Math.max(0,page*limit-limit); //If page is 4 and limit is 5, it will show 15-20
     let values = [order, Number(limit), offset];
-    let query = "SELECT * FROM authors WHERE approved = 0 ORDER BY ? LIMIT ? OFFSET ?"; 
+    let query = "SELECT `id`,`name`, FROM authors WHERE approved = 0 ORDER BY ? LIMIT ? OFFSET ?"; 
     let data = await db.run_query(query, values);
     return data; 
 }

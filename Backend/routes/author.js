@@ -37,7 +37,7 @@ router.post('/',reqLogin, bodyParser(), validateAuthorAdd, addAuthor);
 router.put('/:id([0-9]{1,})',reqLogin, validateAuthorUpd, bodyParser(),updateAuthor); 
 router.del('/:id([0-9]{1,})',reqLogin, deleteAuthor);
 
-/** Routes for the admin to see and approve book author submissions. */
+/** Routes for the admin to see and approve author author submissions. */
 router.get('/unapproved', reqLogin, getUnapproved);
 router.patch('/unapproved([0-9]{1,})', reqLogin, validateAuthorApprove, approveAuthor);
 
@@ -61,6 +61,7 @@ async function getById(ctx, next)
         const permission = can.read(ctx.state.user,author[0]);
         if (!permission.granted) {
             ctx.status = 403;
+            ctx.body = "Insufficient access level to access this resource."
         }
         else
         {
@@ -71,6 +72,7 @@ async function getById(ctx, next)
     else
     {
         ctx.status = 404;
+        ctx.body = "There is no such resource in the database."
     }
 }
 
@@ -102,6 +104,7 @@ async function getAll(ctx, next)
         else
         {
             ctx.status = 404;
+            ctx.body = "There is no such resource in the records."
         }
     }
 }
@@ -112,6 +115,7 @@ async function addAuthor(ctx, next)
     if (!permission.granted) 
     {
         ctx.status = 403;
+        ctx.body = "Insufficient access level."
     }
     else
     {
@@ -124,7 +128,8 @@ async function addAuthor(ctx, next)
         }
         else
         {
-            ctx.status = 400;
+            ctx.status = 500;
+            ctx.body = "Something went wrong on the server side. If this keeps happening, contact the admin."
         }
     }
 }
@@ -133,22 +138,32 @@ async function updateAuthor(ctx, next)
 {
     let id = ctx.params.id;
     let body = ctx.request.body;
-    const article = await model.getById(id);
-    const permission = can.update(ctx.state.user);
-    if (!permission.granted) {
-        ctx.status = 403;
-    }
-    else
+    const author = await model.getById(id);
+    if(author)
     {
-        let result = await model.update(id,body)
-        if (result) 
-        {
-            ctx.status = 204;
+        const permission = can.update(ctx.state.user,author[0]);
+        if (!permission.granted) {
+            ctx.status = 403;
+            ctx.body = "Insufficient access level."
         }
         else
         {
-            ctx.status = 404;
+            let result = await model.update(id,body)
+            if (result) 
+            {
+                ctx.status = 204;
+            }
+            else
+            {
+                ctx.status = 500;
+                ctx.body = "Something went wrong on the server side. If this keeps happening, contact the admin."
+            }
         }
+    }
+    else
+    {
+        ctx.status = 404;
+        ctx.body = "There is no such resource in the records."
     }
 }
 
@@ -157,6 +172,7 @@ async function deleteAuthor(ctx, next)
     const permission = can.delete(ctx.state.user);
     if (!permission.granted) {
         ctx.status = 403;
+        ctx.body = "Insufficient access level to delete this resource."
     }
     else
     {
@@ -169,6 +185,7 @@ async function deleteAuthor(ctx, next)
         else
         {
             ctx.status = 404;
+            ctx.body = "There is no such resource in the records."
         }
     }
 }
@@ -179,6 +196,7 @@ async function getUnapproved(ctx, next)
     if (!permission.granted) 
     {
         ctx.status = 403;
+        ctx.body = "Insufficient access level."
     }
     else
     {
@@ -191,6 +209,7 @@ async function getUnapproved(ctx, next)
         else
         {
             ctx.status = 404;
+            ctx.body = "There are no unapproved books in the database."
         }
     }
 }
@@ -201,6 +220,7 @@ async function approveAuthor(ctx, next)
     if (!permission.granted)
     {
         ctx.status = 403;
+        ctx.body = "Insufficient access level."
     }
     else
     {
@@ -214,7 +234,9 @@ async function approveAuthor(ctx, next)
         else
         {
             ctx.status = 404;
+            ctx.body = "There is no such resource in the database."
         }
     }
 }
+
 module.exports = router;
