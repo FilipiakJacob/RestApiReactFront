@@ -224,7 +224,7 @@ async function approveBook(ctx, next)
         let id = ctx.params.id;
         let body = ctx.request.body;
         let result = await model.approveBook(id, body);
-        if (result)
+        if (result.affectedRows == 1)
         {
             ctx.status = 204;
         }

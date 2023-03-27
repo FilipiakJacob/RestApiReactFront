@@ -132,11 +132,11 @@ exports.getUnapproved = async function getUnapproved (page=0, limit=5, order="id
  */
  exports.approveBook = async function approveBook (id, book)
  {
-     if(book.approved = "approve")
+     if(book.approved == "approve")
      {
-         var query = "UPDATE book SET approved = 1 WHERE id=?";
+         var query = "UPDATE books SET approved = 1 WHERE id=?";
      }
-     if(book.approved = "reject")
+     if(book.approved == "reject")
      {
          var query = "DELETE FROM books WHERE id=?";
      }

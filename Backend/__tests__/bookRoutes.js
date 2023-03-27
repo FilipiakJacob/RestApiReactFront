@@ -79,7 +79,7 @@ describe("Unregistered post new book.", ()=>
     })
 })
 
-describe("Registered post new book missing values in schema schema.", ()=>
+describe("Registered post new book missing values in schema.", ()=>
 {
     it("Should throw schema validation error", async()=>
     {
@@ -244,7 +244,6 @@ describe("Admin get all unapproved books.", ()=>
                 })
             ])
         )
-        console.log(res.body)
     })
 })
 
@@ -265,10 +264,9 @@ describe("Admin approve book.", ()=>
     it("Should modify succesfully.",async()=>
     {
         const res = await request(app.callback())
-        .patch("/api/v1/book/unapproved/3")
+        .patch("/api/v1/book/unapproved/2")
         .auth(ADMIN_TOKEN, { type: 'bearer' })
         .send({
-            "id":3,
             "approved":"approve"
         })
         expect(res.statusCode).toEqual(204)

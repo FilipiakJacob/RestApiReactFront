@@ -611,7 +611,7 @@ paths:
         '400':
           $ref: '#/components/responses/SchemaValidationError'
         '401':
-          $ref: '#/components/responses/UnreviewizedError'
+          $ref: '#/components/responses/UnauthorizedError'
         '403': 
           $ref: '#/components/responses/PermissionError'
         '500':
@@ -655,7 +655,7 @@ paths:
         '400':
           $ref: '#/components/responses/SchemaValidationError'
         '401':
-          $ref: '#/components/responses/UnreviewizedError'
+          $ref: '#/components/responses/UnauthorizedError'
         '403': 
           $ref: '#/components/responses/PermissionError'
         '404':
@@ -680,7 +680,7 @@ paths:
         '204':
           description: Deleted review.
         '401':
-          $ref: '#/components/responses/UnreviewizedError'
+          $ref: '#/components/responses/UnauthorizedError'
         '403': 
           $ref: '#/components/responses/PermissionError'
         '404':

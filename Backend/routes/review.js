@@ -115,7 +115,7 @@ async function addReview(ctx, next)
     {
         const body = ctx.request.body;
         body.authorId = ctx.state.user.id;
-        let result = await model.add(body); 
+        let result = await model.add(body, ctx.state.user.id); 
         if (result) 
         {
             ctx.status = 201;
@@ -140,18 +140,18 @@ async function updateReview(ctx, next)
         if (!permission.granted) 
         {
             ctx.status = 403;
-            ctx.body = "Insufficient access level."
+            ctx.body = "You can only update your own reviews."
         }
         else
         {
-            let result = await model.update(id,body)
+            let result = await model.update(id,body, ctx.state.user.id)
             if (result) 
             {
                 ctx.status = 204;
             }
             else
             {
-                ctx.status = 400;
+                ctx.status = 500;
                 ctx.body = "Something went wrong on the server side. If this keeps happening, contact the admin."
             }
         }
@@ -165,25 +165,33 @@ async function updateReview(ctx, next)
 
 async function deleteReview(ctx, next)
 {
-    //TODO: Users can delete their own reviews
-    const permission = can.delete(ctx.state.user);
-    if (!permission.granted) {
-        ctx.status = 403;
-        ctx.body = "Insufficient access level to delete this resource."
-    }
-    else
-    {
-        let id = ctx.params.id;
-        let result = await model.delete(id);
-        if (result.length) 
-        {
-            ctx.status = 204;
+    let id = ctx.params.id;
+    const review = await model.getById(id);
+    if (review)
+    { 
+        const permission = can.delete(ctx.state.user,review[0]);
+        if (!permission.granted) {
+            ctx.status = 403;
+            ctx.body = "You can only delete your own reviews."
         }
         else
         {
-            ctx.status = 404;
-            ctx.body = "There is no such resource in the records."
+            let result = await model.delete(id);
+            if (result.affectedRows == 1)
+            {
+                ctx.status = 204;
+            }
+            else
+            {
+                ctx.status = 500;
+                ctx.body = "Something went wrong on the server side. If this keeps happening, contact the admin."
+            }
         }
+    }
+    else
+    {
+        ctx.status = 404;
+        ctx.body = "There is no such resource in the records."
     }
 }
 

@@ -145,17 +145,13 @@
       "description": "Schema for approving a book submission.",
       "type": "object",
       "properties": {
-        "id": {
-          "description": "The id number of the book",
-          "type": "number"
-        },
         "approved": {
           "description": "Whether the book submission should be approved to the website.",
           "type": "string",
           "enum": ["approve","reject"]
         }
       },
-      "required": ["id","approved"],
+      "required": ["approved"],
       "additionalProperties": false      
     },
     "bookGetAll": {
