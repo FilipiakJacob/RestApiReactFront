@@ -95,10 +95,10 @@ exports.update = async function update(id,book)
  * @returns {object} MySQL results object
  * @throws {DatabaseException} Custom exception for DB query failures
  */
-exports.delete = async function deleteArticle(id)
+exports.delete = async function deleteBook(id)
 {
     let query = "DELETE FROM books WHERE id=?";
-    let data = await db.run_query(query,[id])
+    let data = await db.run_query(query,id)
     
     return data;
 
@@ -115,7 +115,7 @@ exports.delete = async function deleteArticle(id)
  * @throws {DatabaseException} Custom exception for DB query failures
  */
 //TODO: Ascending/descending sort
-exports.getUnapproved = async function getAll (page=0, limit=5, order="id", orderAD="descending") { 
+exports.getUnapproved = async function getUnapproved (page=0, limit=5, order="id", orderAD="descending") { 
     let offset = Math.max(0,page*limit-limit); //If page is 4 and limit is 5, it will show 15-20
     let values = [order, Number(limit), offset];
     let query = "SELECT `id`, `name`, `authorId`, `date`, `isbn`,`description`, `cover` FROM books WHERE `approved`=0 ORDER BY ? LIMIT ? OFFSET ?"; 
@@ -132,11 +132,11 @@ exports.getUnapproved = async function getAll (page=0, limit=5, order="id", orde
  */
  exports.approveBook = async function approveBook (id, book)
  {
-     if(book.approved = "approve")
+     if(book.approved == "approve")
      {
-         var query = "UPDATE book SET approved = 1 WHERE id=?";
+         var query = "UPDATE books SET approved = 1 WHERE id=?";
      }
-     if(book.approved = "reject")
+     if(book.approved == "reject")
      {
          var query = "DELETE FROM books WHERE id=?";
      }

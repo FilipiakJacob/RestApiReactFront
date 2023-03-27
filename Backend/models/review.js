@@ -55,7 +55,8 @@ exports.getAll = async function getAll (page=0, limit=5, order="id", orderAD="de
  * @returns {object} MySQL results object
  * @throws {DatabaseException} Custom exception for DB query failures
  */
-exports.add = async function add (review) { 
+exports.add = async function add (review, authorId) { 
+    review.authorId = authorId
     let query = "INSERT INTO reviews SET ?";
     let data = await db.run_query(query, review); 
     return data; 
@@ -72,8 +73,9 @@ exports.add = async function add (review) {
  * @returns {object} MySQL results object
  * @throws {DatabaseException} Custom exception for DB query failures
  */
-exports.update = async function update(id,review)
+exports.update = async function update(id,review, authorId)
 {
+    review.authorId = authorId
     let values = [review,id];
     let query = "UPDATE reviews SET ? WHERE id=?";
     let data = await db.run_query(query, values);
@@ -87,11 +89,11 @@ exports.update = async function update(id,review)
  * @returns {object} MySQL results object
  * @throws {DatabaseException} Custom exception for DB query failures
  */
-exports.delete = async function deleteArticle(id)
+exports.delete = async function deleteReview(id)
 {
     let query = "DELETE FROM reviews WHERE id=?";
     let data = await db.run_query(query,id)
-    
+    console.log(data)
     return data;
 
 }

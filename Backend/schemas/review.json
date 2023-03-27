@@ -46,7 +46,7 @@
         "rating": {
           "description": "Rating of the review.",
           "type": "number",
-          "minimum": 1,
+          "minimum": 0,
           "maximum": 10
         },
         "bookId": {

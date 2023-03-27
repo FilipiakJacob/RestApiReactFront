@@ -33,13 +33,13 @@ router.get('/',optionalLogin, getAll);
 router.get('/:id([0-9]{1,})',optionalLogin, getById);
 
 router.post('/',reqLogin, bodyParser(), validateAuthorAdd, addAuthor);
-//TODO: Take ID from request BODY instead.
-router.put('/:id([0-9]{1,})',reqLogin, validateAuthorUpd, bodyParser(),updateAuthor); 
+
+router.put('/:id([0-9]{1,})',reqLogin,bodyParser(), validateAuthorUpd,updateAuthor); 
 router.del('/:id([0-9]{1,})',reqLogin, deleteAuthor);
 
 /** Routes for the admin to see and approve author author submissions. */
 router.get('/unapproved', reqLogin, getUnapproved);
-router.patch('/unapproved([0-9]{1,})', reqLogin, validateAuthorApprove, approveAuthor);
+router.patch('/unapproved/:id([0-9]{1,})', reqLogin,bodyParser(), validateAuthorApprove, approveAuthor);
 
 
 /**
@@ -178,9 +178,9 @@ async function deleteAuthor(ctx, next)
     {
         let id = ctx.params.id;
         let result = await model.delete(id);
-        if (result) 
+        if (result.affectedRows==1) 
         {
-            ctx.status = 200;
+            ctx.status = 204;
         }
         else
         {
@@ -227,7 +227,7 @@ async function approveAuthor(ctx, next)
         let id = ctx.params.id;
         let body = ctx.request.body;
         let result = await model.approveAuthor(id, body);
-        if (result)
+        if (result.affectedRows == 1)
         {
             ctx.status = 204;
         }

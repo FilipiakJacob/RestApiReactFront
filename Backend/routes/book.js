@@ -37,7 +37,7 @@ router.del('/:id([0-9]{1,})',reqLogin, deleteBook);
 
 /** Routes for admin to see and approve book submissions. */
 router.get('/unapproved', reqLogin, getUnapproved);
-router.patch('/unapproved([0-9]{1,})', reqLogin, validateBookApprove, approveBook);
+router.patch('/unapproved/:id([0-9]{1,})', reqLogin,bodyParser(), validateBookApprove, approveBook);
 
 /**
  * Endpoint responsible for getting a single user resource by user ID.
@@ -107,6 +107,7 @@ async function getAll(ctx, next)
 
 async function addBook(ctx, next)
 {
+    const book = ctx.request.body;
     const permission = can.upload(ctx.state.user, book);
     if (!permission.granted) 
     {
@@ -115,8 +116,7 @@ async function addBook(ctx, next)
     }
     else
     {
-        const body = ctx.request.body;
-        let result = await model.add(body); 
+        let result = await model.add(book); 
         if (result) 
         {
             ctx.status = 201;
@@ -166,6 +166,7 @@ async function updateBook(ctx, next)
 
 async function deleteBook(ctx, next)
 {
+    const id = ctx.params.id;
     const permission = can.delete(ctx.state.user);
     if (!permission.granted) {
         ctx.status = 403;
@@ -173,11 +174,10 @@ async function deleteBook(ctx, next)
     }
     else
     {
-        let id = ctx.params.id;
         let result = await model.delete(id);
-        if (result) 
+        if (result.affectedRows == 1) 
         {
-            ctx.status = 200;
+            ctx.status = 204;
         }
         else
         {
@@ -224,7 +224,7 @@ async function approveBook(ctx, next)
         let id = ctx.params.id;
         let body = ctx.request.body;
         let result = await model.approveBook(id, body);
-        if (result)
+        if (result.affectedRows == 1)
         {
             ctx.status = 204;
         }

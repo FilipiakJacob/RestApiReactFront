@@ -56,7 +56,8 @@ function issueJWT(user)
     signedJWT = jsonwebtoken.sign(payload,jwtConfig.secretKey, {expiresIn: expireIn})
     return {
         token: signedJWT,
-        expires: expireIn
+        expires: expireIn,
+        id: user.id
     }
 };
 

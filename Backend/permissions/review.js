@@ -22,8 +22,10 @@ ac.grant("registered").extend("unregistered");
 ac.grant("registered").execute("upload")
     .on("review");
 
-/**Registered users can update reviews */
+/**Registered users can update or delete own reviews */
 ac.grant("registered").condition({Fn:'EQUALS', args: {'requester':'$.owner'}}).execute("update")
+    .on("review");
+ac.grant("registered").condition({Fn:'EQUALS', args: {'requester':'$.owner'}}).execute("delete")
     .on("review");
 
 /**
@@ -46,7 +48,7 @@ exports.upload = (requester) =>
     ac.can(requester.role).execute("upload").sync().on("review");
 
 exports.update = (requester,review) =>  
-    ac.can(requester.role).context({requester:requester.Id, owner:review.authorId}).execute("update").sync().on("review");
+    ac.can(requester.role).context({requester:requester.id, owner:review.authorId}).execute("update").sync().on("review");
 
-exports.delete = (requester) =>    
-    ac.can(requester.role).execute("delete").sync().on("review");
+exports.delete = (requester, review) =>    
+    ac.can(requester.role).context({requester:requester.id, owner:review.authorId}).execute("delete").sync().on("review");

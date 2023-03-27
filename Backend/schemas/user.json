@@ -69,10 +69,6 @@
       "description": "Schema for updating a user in the database.",
       "type": "object",
       "properties": {
-        "id": {
-          "description": "The id number of the user.",
-          "type": "number"
-        },
         "username": {
           "description": "Username of the user.",
           "type": "string"
@@ -91,7 +87,7 @@
           "maxLength": 25
         }
       },
-      "required": ["id","username","email","password"],
+      "required": ["username","email","password"],
       "additionalProperties": false      
     },
     "userGet": {
