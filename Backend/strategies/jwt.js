@@ -34,19 +34,19 @@ const verifyToken = async (jwt_payload,done) => {
     } 
     catch (error) 
     {
-        console.error(`Error during authentication.`);
+        //console.error(`Error during authentication.`);
         return done(error);
     }
     if (result.length) 
     {   
         const user = result[0];
-        console.log(`Successfully authenticated user ${user["username"]}`);
+        //console.log(`Successfully authenticated user ${user["username"]}`);
         return done(null, user);
     } 
-    else 
-    {
-        console.log(`Token Invalid`);
-    }
+    //else 
+    //{
+        //console.log(`Token Invalid`);
+    //}
     return done(null, false); // username or password were incorrect
 };
 

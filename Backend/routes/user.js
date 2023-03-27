@@ -52,7 +52,6 @@ async function getById(ctx)
         else
         {
             //Filter out data that is not allowed for permission level.
-            console.log(permission.attributes)
             user[0] = permission.filter(user[0])
             ctx.status = 200;
             ctx.body = user[0];
@@ -164,9 +163,9 @@ async function deleteUser(ctx)
         else
         {
             const result = await model.delete(id)
-            if (result)
+            if (result.affectedRows == 1)
             {
-                ctx.status = 200;
+                ctx.status = 204;
             }
             else
             {

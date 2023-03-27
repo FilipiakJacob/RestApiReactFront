@@ -175,9 +175,9 @@ async function deleteReview(ctx, next)
     {
         let id = ctx.params.id;
         let result = await model.delete(id);
-        if (result) 
+        if (result.length) 
         {
-            ctx.status = 200;
+            ctx.status = 204;
         }
         else
         {

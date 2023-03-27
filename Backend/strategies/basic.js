@@ -54,18 +54,18 @@ const checkUserAndPass = async (username, password, done) => {
 
         if (await verifyPassword(user, password)) 
         {
-            console.log(`Successfully authenticated user ${username}`);
+            //console.log(`Successfully authenticated user ${username}`);
             return done(null, user);
         }
-        else 
-        {
-            console.log(`Password incorrect for user ${username}`);
-        }
+        //else 
+        //{
+            //console.log(`Password incorrect for user ${username}`);
+        //}
     } 
-    else 
-    {
-        console.log(`No user found with username ${username}`);
-    }
+    //else 
+    //{
+        //console.log(`No user found with username ${username}`);
+    //}
     return done(null, false); // username or password were incorrect
 }
 

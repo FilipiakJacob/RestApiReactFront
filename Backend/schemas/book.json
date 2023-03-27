@@ -48,7 +48,7 @@
           "type": "number"
         }
       },
-      "required": ["id","name","authorId","date","isbn","description","contents","approved"],
+      "required": ["id","name","authorId","date","isbn","description","cover","contents","approved"],
       "additionalProperties": false      
     },
     "bookAdd": {
@@ -90,7 +90,7 @@
           "type": "string"
         }
       },
-      "required": ["name","authorId","date","isbn","description"],
+      "required": ["name","authorId","date","isbn","description","cover","contents"],
       "additionalProperties": false      
     },
     "bookUpd": {
@@ -136,7 +136,7 @@
           "type": "string"
         }
       },
-      "required": ["name","authorId","date","isbn","description","contents","approved"],
+      "required": ["name","authorId","date","isbn","description","cover","contents"],
       "additionalProperties": false      
     },
     "bookApprove": {
