@@ -37,7 +37,7 @@ router.del('/:id([0-9]{1,})',reqLogin, deleteBook);
 
 /** Routes for admin to see and approve book submissions. */
 router.get('/unapproved', reqLogin, getUnapproved);
-router.patch('/unapproved([0-9]{1,})', reqLogin, validateBookApprove, approveBook);
+router.patch('/unapproved/:id([0-9]{1,})', reqLogin,bodyParser(), validateBookApprove, approveBook);
 
 /**
  * Endpoint responsible for getting a single user resource by user ID.
