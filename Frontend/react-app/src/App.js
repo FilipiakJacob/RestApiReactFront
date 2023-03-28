@@ -1,25 +1,35 @@
-import logo from './logo.svg';
-import './App.css';
+import React from 'react';
+import { Layout } from 'antd';
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+
+import Home from "./components/home";
+import TopNav from "./components/topnav";
+
+
+const { Header, Content } = Layout;
+
+
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+      <Layout className='layout'>
+
+        <Header className="header">
+          <TopNav/>
+        </Header>
+
+        <Layout>
+          <Content>
+            <Routes>
+              <Route path="/" element={<Home/>} />
+            </Routes>
+          </Content>
+        </Layout>
+
+      </Layout>
+    </Router>
   );
-}
+};
 
 export default App;
