@@ -48,6 +48,7 @@ const makeKoaValidator = (schema, resource) => {
             await next();
         } catch (error) {
             if (error instanceof ValidationError) {
+                console.log(error)
                 ctx.body = error;
                 ctx.status = 400;
             } else {

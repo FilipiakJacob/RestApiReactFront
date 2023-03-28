@@ -2,12 +2,19 @@ import React from 'react';
 import { Card } from 'antd';
 import PropTypes from 'prop-types'
 
+import { useNavigate } from "react-router-dom";
+
 const { Meta } = Card;
+
 
 const Book = (props) => {
 
+    const navigate = useNavigate();
+
     const handleNav = () => {
-        console.log(props.book.id)
+        navigate("/book",
+            {state:{id:props.book.id}}
+        );
     }
     const onClick = () => {
         handleNav();
@@ -15,7 +22,8 @@ const Book = (props) => {
     return (
         <Card
             style={{ width: 320 }}
-            cover={<img alt="test" src={props.book.imgURL} onClick={onClick} />}
+            cover={<img alt="test" src={props.book.imgURL} />}
+            onClick={onClick}
             hoverable={true}
             >
                 <Meta title={props.book.title} description={props.book.summary} />

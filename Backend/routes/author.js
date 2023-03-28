@@ -61,7 +61,7 @@ async function getById(ctx, next)
         const permission = can.read(ctx.state.user,author[0]);
         if (!permission.granted) {
             ctx.status = 403;
-            ctx.body = "Insufficient access level to access this resource."
+            ctx.body = {"message":"Insufficient access level to access this resource."}
         }
         else
         {
@@ -72,7 +72,7 @@ async function getById(ctx, next)
     else
     {
         ctx.status = 404;
-        ctx.body = "There is no such resource in the database."
+        ctx.body = {"message":"There is no such resource in the database."}
     }
 }
 
@@ -91,6 +91,7 @@ async function getAll(ctx, next)
     if (!permission.granted) 
     {
         ctx.status = 403;
+        ctx.body = {"message": "Insufficient access level"}
     }
     else
     {
@@ -104,7 +105,7 @@ async function getAll(ctx, next)
         else
         {
             ctx.status = 404;
-            ctx.body = "There is no such resource in the records."
+            ctx.body = {"message":"There is no such resource in the records."}
         }
     }
 }
@@ -115,7 +116,7 @@ async function addAuthor(ctx, next)
     if (!permission.granted) 
     {
         ctx.status = 403;
-        ctx.body = "Insufficient access level."
+        ctx.body = {"message":"Insufficient access level."}
     }
     else
     {
@@ -129,7 +130,7 @@ async function addAuthor(ctx, next)
         else
         {
             ctx.status = 500;
-            ctx.body = "Something went wrong on the server side. If this keeps happening, contact the admin."
+            ctx.body = {"message":"Something went wrong on the server side. If this keeps happening, contact the admin."}
         }
     }
 }

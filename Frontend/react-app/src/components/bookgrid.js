@@ -1,5 +1,5 @@
 import React from 'react';
-import {Col,Row} from 'antd';
+import {Col,Row, Spin} from 'antd';
 import BookCard from './bookcard';
 
 import {useState, useEffect} from 'react';
@@ -16,12 +16,10 @@ const BookGrid = () => {
         },
     );
     if (books === []) {
-        return < h3 > Loading books... < /h3>
+        return <Spin size="large" />;
         }
 
     const cardList = Object.entries(books).map(([key, book], i)=> {
-        console.log("HEEEEEEEEEEEEE")
-        console.log(book);
         return(
             <div style = {{padding: "10px"}} key = {i} >
                     <Col span = {6}>
