@@ -48,6 +48,7 @@ async function getById(ctx)
         if (!permission.granted) 
         {
             ctx.status = 403;
+            ctx.body = {"message":"Insufficient access level"}
         }
         else
         {

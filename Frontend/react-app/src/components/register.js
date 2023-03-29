@@ -23,7 +23,7 @@ function Register (){
 function onFinish (values){
   const { confirm, ...data } = values; 
 
-  fetch("https://turboexhibit-diegosalsa-8080.codio-box.uk/api/v1/user", {
+  fetch("https://turboexhibit-diegosalsa-3030.codio-box.uk/api/v1/user", {
     method: "POST",
     body: JSON.stringify(data),
     headers: {
