@@ -72,6 +72,28 @@ components:
         -token
         -expiresIn
         -id
+  parameters:
+    page:
+      in: query
+      name: page
+      schema:
+        type: integer
+        default: 0
+      description: The number of the page of items to show. Each page is the size of "limit".
+    limit:
+      in: query
+      name: limit
+      schema:
+        type: integer
+        default: 5
+      description: The numbers of items to return.
+    order:
+      in: query
+      name: order
+      schema:
+        type: string
+        default: "id"
+      description: The property by which to sort the results.
 tags:
   - name: Login
     description: API endpoint for verifying user credentials and requesting a Json Web Token for authentication.
@@ -119,6 +141,10 @@ paths:
         - User
       description:
         Get data of all users from the database.
+      parameters:
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/order'
       responses:
         '200':
           description: Array of all user records.
@@ -232,6 +258,10 @@ paths:
         Get all book records.
       description:
         Get data of all books from the database. Does not include the full contents (request individual books for this).
+      parameters:
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/order'
       responses:
         '200':
           description: Array of all book records from the database.
@@ -353,6 +383,10 @@ paths:
         Get data of all books from the database which are awaiting approval.
         Does not include the full contents (request individual books for this).
         Admin only.
+      parameters:
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/order'
       responses:
         '200':
           description: Array of all unapproved book records from the database.
@@ -407,6 +441,10 @@ paths:
         Get all author records.
       description:
         Get data of all authors from the database. Does not include the full contents (request individual authors for this).
+      parameters:
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/order'
       responses:
         '200':
           description: Array of all author records from the database.
@@ -528,6 +566,10 @@ paths:
         Get data of all authors from the database which are awaiting approval.
         Does not include the full contents (request individual authors for this).
         Admin only.
+      parameters:
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/order'
       responses:
         '200':
           description: Array of all unapproved author records from the database.
@@ -582,6 +624,10 @@ paths:
         Get all review records.
       description:
         Get data of all reviews from the database. Does not include the full contents (request individual reviews for this).
+      parameters:
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/order'
       responses:
         '200':
           description: Array of all review records from the database.
