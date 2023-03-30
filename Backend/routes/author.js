@@ -96,11 +96,14 @@ async function getAll(ctx, next)
     else
     {
         let authors = await model.getAll(page, limit, order);
+        let total = await model.total("approved")
         //Check user permissions.
         if (authors.length) 
         {
             ctx.status = 200;
             ctx.body = authors;
+            ctx.set('Access-Control-Expose-Headers', 'X-Total-Count');
+            ctx.set("X-Total-Count", total.total);
         }
         else
         {
@@ -205,10 +208,13 @@ async function getUnapproved(ctx, next)
         const limit = ctx.query.limit;
         const order = ctx.query.order;
         let authors = await model.getUnapproved(page,limit,order);
+        let total = await model.total("unapproved")
         if (authors.length)
         {
             ctx.status = 200;
             ctx.body = authors;
+            ctx.set('Access-Control-Expose-Headers', 'X-Total-Count');
+            ctx.set("X-Total-Count", total.total);
         }
         else
         {

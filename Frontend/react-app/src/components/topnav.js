@@ -1,8 +1,8 @@
 import React from 'react';
-import { Menu, Button } from 'antd';
-import { Link } from "react-router-dom";
+import { Menu } from 'antd';
+import { Link,useLocation } from "react-router-dom";
 import { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+
 
 
 function TopNav(){
@@ -23,14 +23,10 @@ function TopNav(){
 
   useEffect(()=>{ //Happens each time the location changes.
     const path = location.pathname;
-    console.log(path);
     switch (path)
     {
       case "/":
         setKey(["home"]);
-        break;
-      case "/account":
-        setKey(["account"]);
         break;
       case "/addBook":
         setKey(["addBook"]);
@@ -61,7 +57,6 @@ function TopNav(){
         <Menu.Item key="home"><Link to="/">Home</Link></Menu.Item>
         {logged ? (
         <>
-          <Menu.Item key="account"><Link to="/account">Account</Link></Menu.Item>
           <Menu.Item key="addBook"><Link to="/addBook">Add Book</Link></Menu.Item>
           <Menu.Item key="logOut"style={{ marginLeft:"auto", marginRight:0 }} selectable={false}><Link onClick={logOut}>Logout</Link></Menu.Item>
         </>

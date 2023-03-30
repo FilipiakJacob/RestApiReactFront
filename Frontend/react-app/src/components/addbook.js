@@ -32,37 +32,38 @@ function Register (){
         reader.onload = (e) => resolve(); //If the upload succeeds, resolve the promise
         reader.onerror = (e) => reject(); //If it fails, reject the promise
       });
-    return reader.result;
+    return btoa(reader.result);
 }
 
-async function onFinish (data){
+  async function onFinish (data){
 
-  data.cover = await toBase64(cover);
-  data.contents = await toBase64(contents);
-  data.authorId = Number(data.authorId);
-  data.date = (data.date).toISOString().slice(0, 10);
-  console.log(data.date)
-  const headers = new Headers();
-  headers.append("Content-Type", "application/json");
-  headers.append("Authorization", "Bearer " + localStorage.getItem("jwt"));
+    data.cover = await toBase64(cover);
+    data.contents = await toBase64(contents);
+    data.authorId = Number(data.authorId);
+    data.date = (data.date).toISOString().slice(0, 10);
+    console.log(data.date)
+    const headers = new Headers();
+    headers.append("Content-Type", "application/json");
+    headers.append("Authorization", "Bearer " + localStorage.getItem("jwt"));
 
-  console.log(JSON.stringify(data));
-  fetch("https://turboexhibit-diegosalsa-3030.codio-box.uk/api/v1/book", {
-    method: "POST",
-    body: JSON.stringify(data),
-    headers,
-  }).then(status)
-    .then(json)
-    .then((data) => {
-      notification.success({message:"Book added"});
-    })
-    .catch((errorResponse) => {
-      json(errorResponse)
-      .then((data)=>
-      notification.error({message:"Error", description: data.path[0] +" "+ data.message})
-      );
-    });
-};
+    console.log(JSON.stringify(data));
+    fetch("https://turboexhibit-diegosalsa-3030.codio-box.uk/api/v1/book", {
+      method: "POST",
+      body: JSON.stringify(data),
+      headers,
+    }).then(status)
+      .then(json)
+      .then((data) => {
+        notification.success({message:"Book added"});
+      })
+      .catch((errorResponse) => {
+        json(errorResponse)
+        .then((data)=>
+        notification.error({message:"Error", description: data.path[0] +" "+ data.message})
+        );
+      });
+  };
+
 
   const generalRules = [
     { 

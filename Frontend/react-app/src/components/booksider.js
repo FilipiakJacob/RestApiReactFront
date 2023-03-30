@@ -4,7 +4,7 @@ import { useState } from 'react';
 const { Sider } = Layout;
 const {Meta} = Card;
 
-function BookSider ({book}) {
+function BookSider ({book,author}) {
   const [collapsed, setCollapsed] = useState(false);
 
   return (
@@ -17,16 +17,24 @@ function BookSider ({book}) {
         bodyStyle={{ overflow: "hidden", 
         padding:"0", borderRadius: '0', backgroundColor: "#001529"}}
          style={{borderRadius: '0' }} cover={
-            <div style={{ overflow: "hidden", height: "30vh" }}>
-              <img alt="book" style={{borderRadius: '0', height:"100%"}} src={book.imgURL}/>
-            </div>
+              !collapsed && ( <img alt="book" style={{borderRadius: '0'}} src={book.cover}/>)
          }>
           <Meta 
             title={
-              !collapsed && (<span style={{color:"#FFFFFF"}}>{book.title}</span>)
+              !collapsed && (<span style={{color:"#FFFFFF"}}>{book.name}</span>)
               }
             description={
-              !collapsed && (<span style={{color:"#FFFFFF"}}>{book.allText}</span>)
+              !collapsed && (
+                <div>
+                  <span style={{color:"#FFFFFF"}}>Author: {author}</span>
+                  <br/>
+                  <span style={{color:"#FFFFFF"}}>Released: {book.date}</span>
+                  <br/>
+                  <span style={{color:"#FFFFFF"}}>ISBN-13: {book.isbn}</span>
+                  <br/>
+                  <span style={{color:"#FFFFFF"}}>{book.description}</span>
+                </div>
+                )
               }
             />
         </Card>

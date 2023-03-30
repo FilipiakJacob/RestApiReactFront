@@ -148,6 +148,10 @@ paths:
       responses:
         '200':
           description: Array of all user records.
+          headers:
+            X-Total-Count:
+              schema:
+                type: integer
           content:
             application/json:
               schema:
@@ -265,6 +269,10 @@ paths:
       responses:
         '200':
           description: Array of all book records from the database.
+          headers:
+            X-Total-Count:
+              schema:
+                type: integer
           content:
             application/json:
               schema:
@@ -390,6 +398,10 @@ paths:
       responses:
         '200':
           description: Array of all unapproved book records from the database.
+          headers:
+            X-Total-Count:
+              schema:
+                type: integer
           content:
             application/json:
               schema:
@@ -448,6 +460,10 @@ paths:
       responses:
         '200':
           description: Array of all author records from the database.
+          headers:
+            X-Total-Count:
+              schema:
+                type: integer
           content:
             application/json:
               schema:
@@ -573,6 +589,10 @@ paths:
       responses:
         '200':
           description: Array of all unapproved author records from the database.
+          headers:
+            X-Total-Count:
+              schema:
+                type: integer
           content:
             application/json:
               schema:
@@ -631,6 +651,10 @@ paths:
       responses:
         '200':
           description: Array of all review records from the database.
+          headers:
+            X-Total-Count:
+              schema:
+                type: integer
           content:
             application/json:
               schema:

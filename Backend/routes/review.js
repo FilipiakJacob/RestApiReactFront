@@ -90,10 +90,13 @@ async function getAll(ctx, next)
         const limit = ctx.query.limit;
         const order = ctx.query.order;
         let reviews = await model.getAll(page, limit, order);
+        let total = await model.total();
         if (reviews.length) 
         {
             ctx.status = 200;
             ctx.body = reviews;
+            ctx.set('Access-Control-Expose-Headers', 'X-Total-Count');
+            ctx.set("X-Total-Count", total.total);
         }
         else
         {

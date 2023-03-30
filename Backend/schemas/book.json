@@ -37,13 +37,11 @@
         },
         "cover": {
           "description": "Cover image of the book (base64)",
-          "type": "string",
-          "contentEncoding": "base64"
+          "type": "string"
         },
         "contents": {
           "description": "The book contents",
-          "type": "string",
-          "contentEncoding": "base64"
+          "type": "string"
         },
         "approved": {
           "description": "0- Awaiting approval, 1- Approved.",
@@ -131,13 +129,11 @@
         },
         "cover": {
           "description": "Cover image of the book (base64)",
-          "type": "string",
-          "contentEncoding": "base64"
+          "type": "string"
         },
         "contents": {
           "description": "The book PDF file",
-          "type": "string",
-          "contentEncoding": "base64"
+          "type": "string"
         }
       },
       "required": ["name","authorId","date","isbn","description","cover","contents"],
@@ -194,8 +190,7 @@
         },
         "cover": {
           "description": "Cover image of the book (base64)",
-          "type": "string",
-          "contentEncoding": "base64"
+          "type": "string"
         }
       }
     }

@@ -7,13 +7,13 @@ import { useNavigate } from "react-router-dom";
 const { Meta } = Card;
 
 
-const Book = (props) => {
+const Book = ({book}) => {
 
     const navigate = useNavigate();
 
     const handleNav = () => {
         navigate("/book",
-            {state:{id:props.book.id}}
+            {state:{id:book.id}}
         );
     }
     const onClick = () => {
@@ -21,12 +21,15 @@ const Book = (props) => {
     }
     return (
         <Card
-            style={{ width: 320 }}
-            cover={<img alt="test" src={props.book.imgURL} />}
+            style={{ width: "14vw", heigh:"20vh" }} 
+            cover={
+              <img alt="book" src={book.cover}/>}
             onClick={onClick}
-            hoverable={true}
-            >
-                <Meta title={props.book.title} description={props.book.summary} />
+            hoverable={true}>
+            <Meta
+                title={<div style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{book.name}</div>}
+                description={<div style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{book.description}</div>}
+            />
         </Card>
     );
 }
