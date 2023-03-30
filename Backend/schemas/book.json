@@ -31,17 +31,19 @@
           "maxLength": 14
         },
         "description": {
-          "description": "Description of the book",
+          "description": "Description of the book (base64)",
           "type": "string",
           "maxLength": 1024
         },
         "cover": {
-          "description": "Cover image of the book",
-          "type": "string"
+          "description": "Cover image of the book (base64)",
+          "type": "string",
+          "contentEncoding": "base64"
         },
         "contents": {
           "description": "The book contents",
-          "type": "string"
+          "type": "string",
+          "contentEncoding": "base64"
         },
         "approved": {
           "description": "0- Awaiting approval, 1- Approved.",
@@ -77,12 +79,12 @@
           "maxLength": 14
         },
         "description": {
-          "description": "Description of the book",
+          "description": "Description of the book (base64)",
           "type": "string",
           "maxLength": 1024
         },
         "cover": {
-          "description": "Cover image of the book",
+          "description": "Cover image of the book (base64)",
           "type": "string"
         },
         "contents": {
@@ -128,12 +130,14 @@
           "maxLength": 1024
         },
         "cover": {
-          "description": "Cover image of the book",
-          "type": "string"
+          "description": "Cover image of the book (base64)",
+          "type": "string",
+          "contentEncoding": "base64"
         },
         "contents": {
           "description": "The book PDF file",
-          "type": "string"
+          "type": "string",
+          "contentEncoding": "base64"
         }
       },
       "required": ["name","authorId","date","isbn","description","cover","contents"],
@@ -189,8 +193,9 @@
           "maxLength": 1024
         },
         "cover": {
-          "description": "Cover image of the book",
-          "type": "string"
+          "description": "Cover image of the book (base64)",
+          "type": "string",
+          "contentEncoding": "base64"
         }
       }
     }

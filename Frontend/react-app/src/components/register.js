@@ -1,5 +1,5 @@
 import React from "react";
-import { Form, Input, Button} from "antd";
+import { Form, Input, Button, notification} from "antd";
 import {useNavigate} from "react-router-dom"
 
 
@@ -7,7 +7,7 @@ function Register (){
   const navigate = useNavigate();
   /**This form was, for the most part, sourced from the week 8 lab /*/
 
-    const formItemLayout = {
+  const formItemLayout = {
     labelCol: { 
       xs: { span: 24 }, sm: { span: 6 } },
       wrapperCol: { xs: { span: 24 }, sm: { span: 12 } 
@@ -32,15 +32,14 @@ function onFinish (values){
   }).then(status)
     .then(json)
     .then((data) => {
-      navigate("/");
-      alert("User added");
+      navigate("/Login");
+      notification.success({message:"User added"});
     })
     .catch((errorResponse) => {
-      // For you TODO: show nicely formatted error message and clear form
       json(errorResponse)
       .then((data)=>
-      alert(`Error: ${data.message}`
-      ));
+      notification.error({message:"Error", description: data.message})
+      );
     });
 };
 

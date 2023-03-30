@@ -5,7 +5,9 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "./components/home";
 import TopNav from "./components/topnav";
 import BookFull from "./components/bookfull";
+import Login from "./components/login";
 import Register from "./components/register";
+import AddBook from "./components/addbook.js"
 
 const { Header, Content } = Layout;
 
@@ -25,6 +27,8 @@ function App() {
             <Routes>
               <Route path="/" element={<Home/>} />
               <Route path="/book" element={<BookFull/>}/>
+              <Route path="login" element={<Login/>}/>
+              <Route path="addBook" element={<AddBook/>}/>
               <Route path="/register" element={<Register/>}/>
             </Routes>
           </Content>
