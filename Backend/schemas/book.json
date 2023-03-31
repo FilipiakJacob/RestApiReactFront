@@ -32,6 +32,7 @@
         },
         "description": {
           "description": "Description of the book ",
+
           "type": "string",
           "maxLength": 1024
         },
@@ -77,7 +78,7 @@
           "maxLength": 14
         },
         "description": {
-          "description": "Description of the book",
+          "description": "Description of the book (base64)",
           "type": "string",
           "maxLength": 1024
         },
