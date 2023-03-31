@@ -4,7 +4,9 @@ import { UploadOutlined } from '@ant-design/icons';
 
 const { TextArea } = Input;
 
-function Register (){
+
+function AddBook (){
+
 
   const [cover, setCover] = useState(null);
   const [contents, setContents]= useState(null);
@@ -32,7 +34,7 @@ function Register (){
         reader.onload = (e) => resolve(); //If the upload succeeds, resolve the promise
         reader.onerror = (e) => reject(); //If it fails, reject the promise
       });
-    return btoa(reader.result);
+    return reader.result;
 }
 
   async function onFinish (data){
@@ -113,7 +115,7 @@ function Register (){
     
       <Form.Item {...tailFormItemLayout} rules={generalRules} >
         <Button type="primary" htmlType="submit">
-          Register
+          Add Book
         </Button>
       </Form.Item>
     </Form>
@@ -135,4 +137,4 @@ function json(response) {
 }
 
 
-export default Register;
+export default AddBook;

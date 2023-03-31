@@ -31,7 +31,8 @@
           "maxLength": 14
         },
         "description": {
-          "description": "Description of the book (base64)",
+          "description": "Description of the book ",
+
           "type": "string",
           "maxLength": 1024
         },
@@ -40,7 +41,7 @@
           "type": "string"
         },
         "contents": {
-          "description": "The book contents",
+          "description": "The book contents (base64)",
           "type": "string"
         },
         "approved": {
@@ -86,7 +87,7 @@
           "type": "string"
         },
         "contents": {
-          "description": "The book PDF file",
+          "description": "The book contents (base64)",
           "type": "string"
         }
       },
@@ -132,7 +133,7 @@
           "type": "string"
         },
         "contents": {
-          "description": "The book PDF file",
+          "description": "The book contents (base64)",
           "type": "string"
         }
       },
