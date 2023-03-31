@@ -31,12 +31,12 @@
           "maxLength": 14
         },
         "description": {
-          "description": "Description of the book",
+          "description": "Description of the book (base64)",
           "type": "string",
           "maxLength": 1024
         },
         "cover": {
-          "description": "Cover image of the book",
+          "description": "Cover image of the book (base64)",
           "type": "string"
         },
         "contents": {
@@ -77,12 +77,12 @@
           "maxLength": 14
         },
         "description": {
-          "description": "Description of the book",
+          "description": "Description of the book (base64)",
           "type": "string",
           "maxLength": 1024
         },
         "cover": {
-          "description": "Cover image of the book",
+          "description": "Cover image of the book (base64)",
           "type": "string"
         },
         "contents": {
@@ -128,7 +128,7 @@
           "maxLength": 1024
         },
         "cover": {
-          "description": "Cover image of the book",
+          "description": "Cover image of the book (base64)",
           "type": "string"
         },
         "contents": {
@@ -189,7 +189,7 @@
           "maxLength": 1024
         },
         "cover": {
-          "description": "Cover image of the book",
+          "description": "Cover image of the book (base64)",
           "type": "string"
         }
       }

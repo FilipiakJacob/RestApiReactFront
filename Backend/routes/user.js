@@ -48,6 +48,7 @@ async function getById(ctx)
         if (!permission.granted) 
         {
             ctx.status = 403;
+            ctx.body = {"message":"Insufficient access level"}
         }
         else
         {
@@ -73,7 +74,7 @@ async function getAll(ctx, next)
     if (!permission.granted) 
     {
         ctx.status = 403;
-        ctx.body = "Only admins can view all records."
+        ctx.body = {"message":"Only admins can view all records."}
     }
     else
     {
@@ -81,6 +82,7 @@ async function getAll(ctx, next)
         const limit = ctx.query.limit;
         const order = ctx.query.order;
         let users = await model.getAll(page, limit, order);
+        let total = await model.total();
         if (users.length) 
         {
             //Filter out data from each record
@@ -89,11 +91,13 @@ async function getAll(ctx, next)
             });
             ctx.status = 200;
             ctx.body = users;
+            ctx.set('Access-Control-Expose-Headers', 'X-Total-Count');
+            ctx.set("X-Total-Count", total.total);
         }
         else
         {
             ctx.status = 404;
-            ctx.body = "No user records found."
+            ctx.body = {"message":"No user records found."}
         }
     }
 }
@@ -111,7 +115,7 @@ async function createUser(ctx)
     else
     {
         ctx.status = 500;
-        ctx.body = "Something went wrong on the server side. If this keeps happening, contact the admin."
+        ctx.body = {"message":"Something went wrong on the server side. If this keeps happening, contact the admin."}
     }
 }
 
@@ -126,7 +130,7 @@ async function updateUser(ctx)
         if (!permission.granted) 
         {
             ctx.status = 403;
-            ctx.body = "Users can only modify their own account."
+            ctx.body = {"message":"Users can only modify their own account."}
         }
         else
         {
@@ -138,14 +142,14 @@ async function updateUser(ctx)
             else
             {
                 ctx.status = 500;
-                ctx.body = "Something went wrong on the server side. If this keeps happening, contact the admin."
+                ctx.body = {"message":"Something went wrong on the server side. If this keeps happening, contact the admin."}
             }
         }
     }
     else
     {
         ctx.status = 404;
-        ctx.body = "No user records found."
+        ctx.body = {"message":"No user records found."}
     }
 }
 
@@ -158,7 +162,7 @@ async function deleteUser(ctx)
         const permission = can.delete(ctx.state.user, user[0]);
         if (!permission.granted) {
             ctx.status = 403;
-            ctx.body = "Users can only delete their own account."
+            ctx.body = {"message":"Users can only delete their own account."}
         }
         else
         {
@@ -170,14 +174,14 @@ async function deleteUser(ctx)
             else
             {
                 ctx.status = 500;
-                ctx.body = "Something went wrong on the server side. If this keeps happening, contact the admin."
+                ctx.body = {"message":"Something went wrong on the server side. If this keeps happening, contact the admin."}
             }
         }
     }
     else
     {
         ctx.status = 404;
-        ctx.body = "No user records found."
+        ctx.body = {"message":"No user records found."}
     }
 }
 

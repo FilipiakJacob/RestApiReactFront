@@ -57,7 +57,7 @@ async function getById(ctx, next)
         if (!permission.granted) 
         {
             ctx.status = 403;
-            ctx.body = "Insufficient access level to access this resource."
+            ctx.body = {"message":"Insufficient access level to access this resource."}
         }
         else
         {
@@ -68,7 +68,7 @@ async function getById(ctx, next)
     else
     {
         ctx.status = 404;
-        ctx.body = "There is no such resource in the records."
+        ctx.body = {"message":"There is no such resource in the records."}
     }   
 }
 
@@ -82,7 +82,7 @@ async function getAll(ctx, next)
     if (!permission.granted) 
     {
         ctx.status = 403;
-        ctx.body = "Insufficient access level to access this resource."
+        ctx.body = {"message":"Insufficient access level to access this resource."}
     }
     else
     {
@@ -90,15 +90,18 @@ async function getAll(ctx, next)
         const limit = ctx.query.limit;
         const order = ctx.query.order;
         let reviews = await model.getAll(page, limit, order);
+        let total = await model.total();
         if (reviews.length) 
         {
             ctx.status = 200;
             ctx.body = reviews;
+            ctx.set('Access-Control-Expose-Headers', 'X-Total-Count');
+            ctx.set("X-Total-Count", total.total);
         }
         else
         {
             ctx.status = 404;
-            ctx.body = "There is no such resource in the records."
+            ctx.body = {"message":"There is no such resource in the records."}
         }
     }
 }
@@ -109,7 +112,7 @@ async function addReview(ctx, next)
     if (!permission.granted) 
     {
         ctx.status = 403;
-        ctx.body = "Insufficient access level."
+        ctx.body = {"message":"Insufficient access level."}
     }
     else
     {
@@ -124,7 +127,7 @@ async function addReview(ctx, next)
         else
         {
             ctx.status = 500;
-            ctx.body = "Something went wrong on the server side. If this keeps happening, contact the admin."
+            ctx.body = {"message":"Something went wrong on the server side. If this keeps happening, contact the admin."}
         }
     }
 }
@@ -140,7 +143,7 @@ async function updateReview(ctx, next)
         if (!permission.granted) 
         {
             ctx.status = 403;
-            ctx.body = "You can only update your own reviews."
+            ctx.body = {"message":"You can only update your own reviews."}
         }
         else
         {
@@ -152,14 +155,14 @@ async function updateReview(ctx, next)
             else
             {
                 ctx.status = 500;
-                ctx.body = "Something went wrong on the server side. If this keeps happening, contact the admin."
+                ctx.body = {"message":"Something went wrong on the server side. If this keeps happening, contact the admin."}
             }
         }
     }
     else
     {
         ctx.status = 404;
-        ctx.body = "There is no such resource in the records."
+        ctx.body = {"message":"There is no such resource in the records."}
     }
 }
 
@@ -172,7 +175,7 @@ async function deleteReview(ctx, next)
         const permission = can.delete(ctx.state.user,review[0]);
         if (!permission.granted) {
             ctx.status = 403;
-            ctx.body = "You can only delete your own reviews."
+            ctx.body = {"message":"You can only delete your own reviews."}
         }
         else
         {
@@ -184,14 +187,14 @@ async function deleteReview(ctx, next)
             else
             {
                 ctx.status = 500;
-                ctx.body = "Something went wrong on the server side. If this keeps happening, contact the admin."
+                ctx.body = {"message":"Something went wrong on the server side. If this keeps happening, contact the admin."}
             }
         }
     }
     else
     {
         ctx.status = 404;
-        ctx.body = "There is no such resource in the records."
+        ctx.body = {"message":"There is no such resource in the records."}
     }
 }
 

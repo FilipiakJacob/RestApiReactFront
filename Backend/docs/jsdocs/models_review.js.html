@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: models/review.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: models/review.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * This module encapsulates all interactions between the "review" API endpoint 
+ * and the MySQL database.
+ * 
+ * @module modules/review
+ * @author JF
+ */
+
+
+const db = require('../helpers/database'); 
+
+/**
+ * Function queries the database for data pertaining to a single review.
+ * 
+ * @param {int} id The ID of the book review whose data was requested
+ * @returns {object} MySQL results object.
+ * @throws {DatabaseException} Custom exception for DB query failures
+ */
+exports.getById = async function getById (id) {
+    let query = "SELECT * FROM reviews WHERE ID = ?";
+
+    let values = [id]; 
+    let data = await db.run_query(query, values);
+
+    return data; 
+} 
+
+/**
+ * List all reviews in the database.
+ * 
+ * @param {int} [page=0] The page of results to return.
+ * @param {int} [limit=5] The number of results per page.
+ * @param {string} [order="id"] The parameter by which to sort the results.
+ * @returns {object} MySQL results object
+ * @throws {DatabaseException} Custom exception for DB query failures
+ */
+exports.getAll = async function getAll (page=0, limit=5, order="id") { 
+    let offset = Math.max(0,page*limit-limit); //If page is 4 and limit is 5, it will show 15-20
+    let values = [order, Number(limit), offset];
+    let query = "SELECT * FROM reviews ORDER BY ? LIMIT ? OFFSET ?"; 
+    let data = await db.run_query(query, values);
+    return data; 
+}
+
+/**
+ * Add a new review to the database.
+ * 
+ * @param {object} review Object containing information about the review.
+ * @param {string} review.comment The comment of the review
+ * @param {int} review.rating The rating of the review
+ * @param {string} review.authorId The ID of the review's author.
+ * @param {string} review.bookId The ID of the book which is being reviewed.
+ * @returns {object} MySQL results object
+ * @throws {DatabaseException} Custom exception for DB query failures
+ */
+exports.add = async function add (review, authorId) { 
+    review.authorId = authorId
+    let query = "INSERT INTO reviews SET ?";
+    let data = await db.run_query(query, review); 
+    return data; 
+}
+
+/**
+ * Update a single review in the database.
+ * 
+ * @param {int} id The ID of the review whose data should be updated.
+ * @param {object} review Object containing information about the review.
+ * @param {string} review.comment The comment of the review
+ * @param {int} review.rating The rating of the review
+ * @param {string} review.authorId The ID of the review's author.
+ * @returns {object} MySQL results object
+ * @throws {DatabaseException} Custom exception for DB query failures
+ */
+exports.update = async function update(id,review, authorId)
+{
+    review.authorId = authorId
+    let values = [review,id];
+    let query = "UPDATE reviews SET ? WHERE id=?";
+    let data = await db.run_query(query, values);
+    return data;
+}
+
+/**
+ * Delete a single review from the database.
+ * 
+ * @param {int} id The ID number of the review whose data is to be deleted from the database.
+ * @returns {object} MySQL results object
+ * @throws {DatabaseException} Custom exception for DB query failures
+ */
+exports.delete = async function deleteReview(id)
+{
+    let query = "DELETE FROM reviews WHERE id=?";
+    let data = await db.run_query(query,id);
+    return data;
+
+}
+
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-controllers_basic.html">controllers/basic</a></li><li><a href="module-controllers_jwt.html">controllers/jwt</a></li><li><a href="module-controllers_validation.html">controllers/validation</a></li><li><a href="module-helpers_database.html">helpers/database</a></li><li><a href="module-modules_author.html">modules/author</a></li><li><a href="module-modules_book.html">modules/book</a></li><li><a href="module-modules_review.html">modules/review</a></li><li><a href="module-modules_user.html">modules/user</a></li><li><a href="module-routes_author.html">routes/author</a></li><li><a href="module-routes_book.html">routes/book</a></li><li><a href="module-routes_login.html">routes/login</a></li><li><a href="module-routes_review.html">routes/review</a></li><li><a href="module-routes_user.html">routes/user</a></li><li><a href="module-strategies_basic.html">strategies/basic</a></li><li><a href="module-strategies_jwt.html">strategies/jwt</a></li></ul><h3>Classes</h3><ul><li><a href="module-helpers_database-DatabaseException.html">DatabaseException</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Wed Mar 29 2023 17:39:38 GMT+0000 (GMT)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

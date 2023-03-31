@@ -28,16 +28,14 @@ exports.getById = async function getById (id) {
 /**
  * List all authors in the database.
  * 
- * @param {int} [page=0] The page of results to return.
+ * @param {int} [page=1] The page of results to return.
  * @param {int} [limit=5] The number of results per page.
  * @param {string} [order="id"] The parameter by which to sort the results.
- * @param {string} [orderAD="descending"] Whether order should be ascending or descending.
  * @returns {object} MySQL results object
  * @throws {DatabaseException} Custom exception for DB query failures
  */
-//TODO: Ascending/descending sort
-exports.getAll = async function getAll (page=0, limit=5, order="id", orderAD="descending") { 
-    let offset = Math.max(0,page*limit-limit); //If page is 4 and limit is 5, it will show 15-20
+exports.getAll = async function getAll (page=1, limit=5, order="id") { 
+    let offset = page*limit-limit; //If page is 4 and limit is 5, it will show 15-20
     let values = [order, Number(limit), offset];
     let query = "SELECT `id`,`name` FROM authors WHERE approved = 1 ORDER BY ? LIMIT ? OFFSET ?"; 
     let data = await db.run_query(query, values);
@@ -56,6 +54,23 @@ exports.add = async function add (author) {
     let query = "INSERT INTO authors SET ?";
     let data = await db.run_query(query, author); 
     return data; 
+}
+
+
+/**
+ * Get the total number of items in the database.
+ * @param {string} approved Either "approved" or "unapproved"
+ * @returns Either the count of approved or unapproved authors in the database.
+ */
+exports.total = async function total(approved){
+    if (approved=="approved"){
+        var query = "SELECT COUNT(*) AS total FROM authors WHERE approved = 1"
+    }
+    if(approved=="unapproved"){
+        var query = "SELECT COUNT(*) AS total FROM authors WHERE approved = 0"
+    }
+    let data = await db.run_query(query);
+    return data[0];
 }
 
 /**
@@ -94,18 +109,14 @@ exports.delete = async function deleteAuthor(id)
 /**
  * List all unapproved authors in the database.
  * 
- * @param {int} [page=0] The page of results to return.
+ * @param {int} [page=1] The page of results to return.
  * @param {int} [limit=5] The number of results per page.
  * @param {string} [order="id"] The parameter by which to sort the results.
- * @param {string} [orderAD="descending"] Whether order should be ascending or descending.
  * @returns {object} MySQL results object
  * @throws {DatabaseException} Custom exception for DB query failures
  */
-//TODO: Ascending/descending sort
-
-
-exports.getUnapproved = async function getUnapproved (page=0, limit=5, order="id", orderAD="descending") { 
-    let offset = Math.max(0,page*limit-limit); //If page is 4 and limit is 5, it will show 15-20
+exports.getUnapproved = async function getUnapproved (page=1, limit=5, order="id") { 
+    let offset = page*limit-limit; //If page is 4 and limit is 5, it will show 15-20
     let values = [order, Number(limit), offset];
     let query = "SELECT `id`,`name` FROM authors WHERE approved = 0 ORDER BY ? LIMIT ? OFFSET ?"; 
     let data = await db.run_query(query, values);

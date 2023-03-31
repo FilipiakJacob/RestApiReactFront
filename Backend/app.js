@@ -1,5 +1,4 @@
-
-//index.js is the entrypoint of the backend application. 
+const cors = require('@koa/cors');
 
 const Koa = require('koa');
 
@@ -13,6 +12,7 @@ const review = require("./routes/review");
 const user = require("./routes/user");
 const login = require("./routes/login")
 
+app.use(cors());
 app.use(author.routes());
 app.use(book.routes());
 app.use(review.routes());

@@ -30,16 +30,15 @@ exports.getById = async function getById (id) {
 /**
  * List all users in the database.
  * 
- * @param {int} [page=0] The page of results to return
+ * @param {int} [page=1] The page of results to return
  * @param {int} [limit=5] The number of results per page
  * @param {string} [order="id"] The parameter by which to sort the results
- * @param {string} [orderAD="descending"] Whether order should be ascending or descending
  * @returns {object} MySQL results object
  * @throws {DatabaseException} Custom exception for DB query failures
  */
-//TODO: Ascending/descending sort
-exports.getAll = async function getAll (page=0, limit=5, order="id", orderAD="descending") { 
-    let offset = Math.max(0,page*limit-limit); //If page is 4 and limit is 5, it will show 15-20
+
+exports.getAll = async function getAll (page=1, limit=5, order="id") { 
+    let offset = page*limit-limit; //If page is 4 and limit is 5, it will show 15-20
     let values = [order, Number(limit), offset];
     let query = "SELECT * FROM users ORDER BY ? LIMIT ? OFFSET ?"; 
     let data = await db.run_query(query, values); 
@@ -61,6 +60,18 @@ exports.add = async function add (user) {
     let query = "INSERT INTO users SET ?";
     let data = await db.run_query(query, user);
     return data
+}
+
+
+/**
+ * Get the total number of items in the database.
+ * @returns Count of users in the database.
+ */
+ exports.total = async function total(){
+    
+    var query = "SELECT COUNT(*) AS total FROM users"
+    let data = await db.run_query(query);
+    return data[0];
 }
 
 /**

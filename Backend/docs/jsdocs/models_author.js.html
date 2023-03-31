@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: models/author.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: models/author.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * This module encapsulates all interactions between the "author" API endpoint 
+ * and the MySQL database.
+ * 
+ * @module modules/author
+ * @author JF
+ */
+
+const db = require('../helpers/database'); 
+
+
+/**
+ * Function queries the database for data pertaining to a single author.
+ * 
+ * @param {int} id The ID of the book author whose data was requested
+ * @returns {object} MySQL results object.
+ * @throws {DatabaseException} Custom exception for DB query failures
+ */
+exports.getById = async function getById (id) {
+    let query = "SELECT * FROM authors WHERE id = ?";
+
+    let values = [id]; 
+    let data = await db.run_query(query, values);
+
+    return data; 
+} 
+
+/**
+ * List all authors in the database.
+ * 
+ * @param {int} [page=0] The page of results to return.
+ * @param {int} [limit=5] The number of results per page.
+ * @param {string} [order="id"] The parameter by which to sort the results.
+ * @returns {object} MySQL results object
+ * @throws {DatabaseException} Custom exception for DB query failures
+ */
+exports.getAll = async function getAll (page=0, limit=5, order="id") { 
+    let offset = Math.max(0,page*limit-limit); //If page is 4 and limit is 5, it will show 15-20
+    let values = [order, Number(limit), offset];
+    let query = "SELECT `id`,`name` FROM authors WHERE approved = 1 ORDER BY ? LIMIT ? OFFSET ?"; 
+    let data = await db.run_query(query, values);
+    return data; 
+}
+
+/**
+ * Add a new author to the database.
+ * 
+ * @param {object} author Object containing information about the author.
+ * @param {string} author.name The name of the author
+ * @returns {object} MySQL results object
+ * @throws {DatabaseException} Custom exception for DB query failures
+ */
+exports.add = async function add (author) { 
+    let query = "INSERT INTO authors SET ?";
+    let data = await db.run_query(query, author); 
+    return data; 
+}
+
+/**
+ * Update a single author in the database.
+ * 
+ * @param {int} id The ID of the author whose data should be updated.
+ * @param {object} author Object containing information about the author.
+ * @param {string} author.name The name of the author
+ * @returns {object} MySQL results object
+ * @throws {DatabaseException} Custom exception for DB query failures
+ */
+exports.update = async function update(id,author)
+{
+    let values = [author,id];
+    let query = "UPDATE authors SET ? WHERE id=?";
+    let data = await db.run_query(query, values);
+    return data;
+}
+
+/**
+ * Delete a single author from the database.
+ * 
+ * @param {int} id The ID number of the author whose data is to be deleted from the database.
+ * @returns {object} MySQL results object
+ * @throws {DatabaseException} Custom exception for DB query failures
+ */
+exports.delete = async function deleteAuthor(id)
+{
+    let query = "DELETE FROM authors WHERE id=?";
+    let data = await db.run_query(query,id)
+    
+    return data;
+
+}
+
+/**
+ * List all unapproved authors in the database.
+ * 
+ * @param {int} [page=0] The page of results to return.
+ * @param {int} [limit=5] The number of results per page.
+ * @param {string} [order="id"] The parameter by which to sort the results.
+ * @returns {object} MySQL results object
+ * @throws {DatabaseException} Custom exception for DB query failures
+ */
+exports.getUnapproved = async function getUnapproved (page=0, limit=5, order="id") { 
+    let offset = Math.max(0,page*limit-limit); //If page is 4 and limit is 5, it will show 15-20
+    let values = [order, Number(limit), offset];
+    let query = "SELECT `id`,`name` FROM authors WHERE approved = 0 ORDER BY ? LIMIT ? OFFSET ?"; 
+    let data = await db.run_query(query, values);
+    return data; 
+}
+
+
+/**
+ * Takes ID of author in DB and an author object containing approval. If the approval is equal
+ * to "approve", the author is approved. If it is equal to "reject", the author is deleted from the database.
+ * @param {number} id The ID number of the author in the database.
+ * @param {object} author The author object.
+ * @param {string} author.approved The approval option. Either "approve" or "reject"
+ */
+exports.approveAuthor = async function approveAuthor (id, author)
+{
+    if(author.approved == "approve")
+    {
+        var query = "UPDATE authors SET approved = 1 WHERE id=?";
+    }
+    if(author.approved == "reject")
+    {
+        var query ="DELETE FROM authors WHERE id=?";
+    }
+    let data = await db.run_query(query, id);
+    return data;
+}</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-controllers_basic.html">controllers/basic</a></li><li><a href="module-controllers_jwt.html">controllers/jwt</a></li><li><a href="module-controllers_validation.html">controllers/validation</a></li><li><a href="module-helpers_database.html">helpers/database</a></li><li><a href="module-modules_author.html">modules/author</a></li><li><a href="module-modules_book.html">modules/book</a></li><li><a href="module-modules_review.html">modules/review</a></li><li><a href="module-modules_user.html">modules/user</a></li><li><a href="module-routes_author.html">routes/author</a></li><li><a href="module-routes_book.html">routes/book</a></li><li><a href="module-routes_login.html">routes/login</a></li><li><a href="module-routes_review.html">routes/review</a></li><li><a href="module-routes_user.html">routes/user</a></li><li><a href="module-strategies_basic.html">strategies/basic</a></li><li><a href="module-strategies_jwt.html">strategies/jwt</a></li></ul><h3>Classes</h3><ul><li><a href="module-helpers_database-DatabaseException.html">DatabaseException</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Wed Mar 29 2023 17:39:38 GMT+0000 (GMT)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

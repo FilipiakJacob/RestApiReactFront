@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: models/user.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: models/user.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * This module encapsulates all interactions between the "user" API endpoint 
+ * and the MySQL database.
+ * 
+ * @module modules/user
+ * @author JF
+ */
+
+
+const db = require('../helpers/database');
+
+const bcrypt = require('bcrypt');
+
+
+/**
+ * Function queries the database for data pertaining to a single user
+ * 
+ * @param {int} id The ID of the user whose data was requested
+ * @returns {object} MySQL results object
+ * @throws {DatabaseException} Custom exception for DB query failures
+ */
+exports.getById = async function getById (id) { 
+    let query = "SELECT * FROM users WHERE ID = ?";
+
+    let values = [id]; 
+    let data = await db.run_query(query, values); 
+    return data; 
+} 
+
+/**
+ * List all users in the database.
+ * 
+ * @param {int} [page=0] The page of results to return
+ * @param {int} [limit=5] The number of results per page
+ * @param {string} [order="id"] The parameter by which to sort the results
+ * @returns {object} MySQL results object
+ * @throws {DatabaseException} Custom exception for DB query failures
+ */
+
+exports.getAll = async function getAll (page=0, limit=5, order="id") { 
+    let offset = Math.max(0,page*limit-limit); //If page is 4 and limit is 5, it will show 15-20
+    let values = [order, Number(limit), offset];
+    let query = "SELECT * FROM users ORDER BY ? LIMIT ? OFFSET ?"; 
+    let data = await db.run_query(query, values); 
+    return data; 
+} 
+
+/**
+ * Add a new user to the database.
+ * 
+ * @param {object} user Object containing information about the user
+ * @param {string} user.username The username of the user
+ * @param {string} user.password The password of the user
+ * @param {string} user.email The email address of the user
+ * @returns {object} MySQL results object
+ * @throws {DatabaseException} Custom exception for DB query failures
+ */
+exports.add = async function add (user) { 
+    user.password = await bcrypt.hash(user.password,10);
+    let query = "INSERT INTO users SET ?";
+    let data = await db.run_query(query, user);
+    return data
+}
+
+/**
+ * Update a new user to the database.
+ * 
+ * @param {object} user Object containing information about the user
+ * @param {string} user.username The username of the user
+ * @param {string} user.password The password of the user
+ * @param {string} user.email The email address of the user
+ * @returns {object} MySQL results object
+ * @throws {DatabaseException} Custom exception for DB query failures
+ */
+exports.update = async function update (id, user) {
+    user.password = await bcrypt.hash(user.password,10);
+    let query = "UPDATE users SET ? WHERE id = ?";
+    let data = await db.run_query(query, [user,id]);
+    return data; 
+}
+
+/**
+ * Delete a user from the database.
+ * 
+ * @param {int} id The ID number of the user to delete
+ * @returns {object} MySQL results object
+ * @throws {DatabaseException} Custom exception for DB query failures
+ */
+exports.delete = async function deleteUser(id)
+{
+    let query = "DELETE FROM users WHERE id=?";
+    let data = await db.run_query(query,id)
+    
+    return data;
+
+}
+
+/**
+ * Function queries the database in search of a user with a given username.
+ * This function should NOT be made and endpoint. 
+ * 
+ * @param {string} username The username of by which the database is filtered.
+ * @returns {object} MySQL results object containing data about the user.
+ * @throws {DatabaseException} Custom exception for DB query failures
+ */
+exports.findByUsername = async function getByUsername(username) 
+{
+    const query = "SELECT * FROM users WHERE username = ?;";
+    const user = await db.run_query(query, username);
+    return user;
+}</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-controllers_basic.html">controllers/basic</a></li><li><a href="module-controllers_jwt.html">controllers/jwt</a></li><li><a href="module-controllers_validation.html">controllers/validation</a></li><li><a href="module-helpers_database.html">helpers/database</a></li><li><a href="module-modules_author.html">modules/author</a></li><li><a href="module-modules_book.html">modules/book</a></li><li><a href="module-modules_review.html">modules/review</a></li><li><a href="module-modules_user.html">modules/user</a></li><li><a href="module-routes_author.html">routes/author</a></li><li><a href="module-routes_book.html">routes/book</a></li><li><a href="module-routes_login.html">routes/login</a></li><li><a href="module-routes_review.html">routes/review</a></li><li><a href="module-routes_user.html">routes/user</a></li><li><a href="module-strategies_basic.html">strategies/basic</a></li><li><a href="module-strategies_jwt.html">strategies/jwt</a></li></ul><h3>Classes</h3><ul><li><a href="module-helpers_database-DatabaseException.html">DatabaseException</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Wed Mar 29 2023 17:39:38 GMT+0000 (GMT)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

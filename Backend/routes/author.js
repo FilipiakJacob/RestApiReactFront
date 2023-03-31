@@ -61,7 +61,7 @@ async function getById(ctx, next)
         const permission = can.read(ctx.state.user,author[0]);
         if (!permission.granted) {
             ctx.status = 403;
-            ctx.body = "Insufficient access level to access this resource."
+            ctx.body = {"message":"Insufficient access level to access this resource."}
         }
         else
         {
@@ -72,7 +72,7 @@ async function getById(ctx, next)
     else
     {
         ctx.status = 404;
-        ctx.body = "There is no such resource in the database."
+        ctx.body = {"message":"There is no such resource in the database."}
     }
 }
 
@@ -91,20 +91,24 @@ async function getAll(ctx, next)
     if (!permission.granted) 
     {
         ctx.status = 403;
+        ctx.body = {"message": "Insufficient access level"}
     }
     else
     {
         let authors = await model.getAll(page, limit, order);
+        let total = await model.total("approved")
         //Check user permissions.
         if (authors.length) 
         {
             ctx.status = 200;
             ctx.body = authors;
+            ctx.set('Access-Control-Expose-Headers', 'X-Total-Count');
+            ctx.set("X-Total-Count", total.total);
         }
         else
         {
             ctx.status = 404;
-            ctx.body = "There is no such resource in the records."
+            ctx.body = {"message":"There is no such resource in the records."}
         }
     }
 }
@@ -115,7 +119,7 @@ async function addAuthor(ctx, next)
     if (!permission.granted) 
     {
         ctx.status = 403;
-        ctx.body = "Insufficient access level."
+        ctx.body = {"message":"Insufficient access level."}
     }
     else
     {
@@ -129,7 +133,7 @@ async function addAuthor(ctx, next)
         else
         {
             ctx.status = 500;
-            ctx.body = "Something went wrong on the server side. If this keeps happening, contact the admin."
+            ctx.body = {"message":"Something went wrong on the server side. If this keeps happening, contact the admin."}
         }
     }
 }
@@ -144,7 +148,7 @@ async function updateAuthor(ctx, next)
         const permission = can.update(ctx.state.user,author[0]);
         if (!permission.granted) {
             ctx.status = 403;
-            ctx.body = "Insufficient access level."
+            ctx.body = {"message":"Insufficient access level."}
         }
         else
         {
@@ -156,14 +160,14 @@ async function updateAuthor(ctx, next)
             else
             {
                 ctx.status = 500;
-                ctx.body = "Something went wrong on the server side. If this keeps happening, contact the admin."
+                ctx.body = {"message":"Something went wrong on the server side. If this keeps happening, contact the admin."}
             }
         }
     }
     else
     {
         ctx.status = 404;
-        ctx.body = "There is no such resource in the records."
+        ctx.body = {"message":"There is no such resource in the records."}
     }
 }
 
@@ -172,7 +176,7 @@ async function deleteAuthor(ctx, next)
     const permission = can.delete(ctx.state.user);
     if (!permission.granted) {
         ctx.status = 403;
-        ctx.body = "Insufficient access level to delete this resource."
+        ctx.body = {"message":"Insufficient access level to delete this resource."}
     }
     else
     {
@@ -185,7 +189,7 @@ async function deleteAuthor(ctx, next)
         else
         {
             ctx.status = 404;
-            ctx.body = "There is no such resource in the records."
+            ctx.body = {"message":"There is no such resource in the records."}
         }
     }
 }
@@ -196,20 +200,26 @@ async function getUnapproved(ctx, next)
     if (!permission.granted) 
     {
         ctx.status = 403;
-        ctx.body = "Insufficient access level."
+        ctx.body = {"message":"Insufficient access level."}
     }
     else
     {
-        let authors = await model.getUnapproved();
+        const page = ctx.query.page;
+        const limit = ctx.query.limit;
+        const order = ctx.query.order;
+        let authors = await model.getUnapproved(page,limit,order);
+        let total = await model.total("unapproved")
         if (authors.length)
         {
             ctx.status = 200;
             ctx.body = authors;
+            ctx.set('Access-Control-Expose-Headers', 'X-Total-Count');
+            ctx.set("X-Total-Count", total.total);
         }
         else
         {
             ctx.status = 404;
-            ctx.body = "There are no unapproved books in the database."
+            ctx.body = {"message":"There are no unapproved books in the database."}
         }
     }
 }
@@ -220,7 +230,7 @@ async function approveAuthor(ctx, next)
     if (!permission.granted)
     {
         ctx.status = 403;
-        ctx.body = "Insufficient access level."
+        ctx.body = {"message":"Insufficient access level."}
     }
     else
     {
@@ -234,7 +244,7 @@ async function approveAuthor(ctx, next)
         else
         {
             ctx.status = 404;
-            ctx.body = "There is no such resource in the database."
+            ctx.body = {"message":"There is no such resource in the database."}
         }
     }
 }

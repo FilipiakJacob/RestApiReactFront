@@ -33,7 +33,8 @@ async function logIn(ctx, next)
     ctx.status = 200;
     ctx.body = {
         token:jwt.token,
-        expiresIn:jwt.expires
+        expiresIn:jwt.expires,
+        userId: jwt.id
     }
 }
 
